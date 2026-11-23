@@ -512,11 +512,14 @@ function renderNum(c, fields, onAnswer, opt={}){
   }));
   const finish = giveUp => {
     lockAll(wrap); idk.disabled=true; check.disabled=true;
-    const used={}, res=[];
+    const used={}, res=[], vals={};
+    // pola z g: kroki jednego rozwiązania – ocena każdego kroku zależy od wcześniejszych wpisów dziecka (v = liczby z całej grupy)
+    fields.forEach((f,i)=>{ if(f.g!=null){ const dg=String(giveUp?'':inputs[i].value).replace(/\D/g,''); (vals[f.g]||(vals[f.g]=[])).push(dg===''?NaN:Number(dg)); } });
     fields.forEach((f,i)=>{
       const raw = giveUp ? '' : inputs[i].value;
       let ok=false;
-      if(f.pair){
+      if(f.chk) ok = !!f.chk(vals[f.g]);
+      else if(f.pair){
         const nums=(String(raw).match(/\d+/g)||[]).map(Number);
         const set=used[f.grp]||(used[f.grp]=new Set());
         if(nums.length===2){ const k=nums.slice().sort((x,y)=>x-y).join(','); if(f.pair.includes(k)&&!set.has(k)){ ok=true; set.add(k); } }
@@ -531,6 +534,7 @@ function renderNum(c, fields, onAnswer, opt={}){
       el.classList.add('wrong');
       let show;
       if(f.pair){ const set=used[f.grp]; const k=f.pair.find(p=>!set.has(p)) || f.pair[0]; set.add(k); show=k.split(',').join(' · '); }
+      else if(f.fx) show = fmtN(f.fx(vals[f.g]));
       else show = f.show ?? (f.sel ? f.ans : fmtN(f.ans));
       fix.textContent='➜ '+show; fix.hidden=false;
     });
@@ -743,6 +747,82 @@ word(2,1,()=>{ // s. 102, zad. 13: akwarium
     f:[{label:'Ile osób ma psa?',ans:k*t},{label:'O ile więcej osób ma psa niż akwarium?',ans:k*t-k}],
     hint:`„${t} razy więcej” to mnożenie: ${k} · ${t} = ${k*t}. „O ile więcej” to odejmowanie: ${k*t} – ${k} = <b>${k*t-k}</b> (s. 102).`};
 });
+word(1,3,()=>{ // s. 92–93: Bajka o Czerwonym Kapturku
+  return {q:'Przeczytaj uważnie bajkę i odpowiedz na pytania.',
+    ctx:`<b>Bajka o Czerwonym Kapturku.</b> Czerwony Kapturek i jego siostra, Zielony Kapturek, upiekły 40 ciasteczek z powidłami i 30 kakaowych. Dla Babci przeznaczyły połowę ciasteczek z powidłami i prawie wszystkie kakaowe (tylko 5 zostało w domu). Droga do Babci zwykle zajmuje godzinę. Po kwadransie marszu Kapturek usiadł na 10 minut i zjadł po jednym ciasteczku każdego rodzaju. Z koszyka wypadło mu wtedy 5 ciasteczek. Po 25 minutach spotkał wilka i rozmawiał z nim 20 minut. Poczęstował go ciasteczkami – wilk zjadł ich 8. Po pożegnaniu Kapturek dotarł do Babci po 20 minutach.`,
+    f:[{label:'Jak się nazywa siostra Czerwonego Kapturka?',sel:['Zielony Kapturek','Niebieski Kapturek','Biały Kapturek'],ans:'Zielony Kapturek'},
+       {label:'Ile ciasteczek zjadł wilk?',ans:8},
+       {label:'Ile minut Kapturek rozmawiał z wilkiem?',ans:20},
+       {label:'Ile ciasteczek zabrał Kapturek z domu do Babci?',ans:45},
+       {label:'Ile ciasteczek zostało w domu?',ans:25},
+       {label:'Ile ciasteczek z koszyka zostało zjedzonych po drodze (przez Kapturka i wilka)?',ans:10},
+       {label:'Ile ciasteczek dostała Babcia?',ans:30},
+       {label:'O ile minut więcej niż zwykle zajęła Kapturkowi droga do Babci?',ans:30}],
+    hint:`Do Babci: 40 : 2 = 20 powidłowych + (30 – 5) = 25 kakaowych, razem <b>45</b>. W domu: 20 + 5 = <b>25</b>. Zjedzone: 2 (Kapturek) + 8 (wilk) = <b>10</b> – te 5, które wypadły, nie były zjedzone. Babcia: 45 – 10 – 5 = <b>30</b>. Droga: 15 + 10 + 25 + 20 + 20 = 90 minut, a zwykle 60, czyli o <b>30</b> minut więcej (s. 92–93).`};
+},{book:true});
+word(2,1,()=>{ // s. 100: Krysia i trzy skarbonki
+  const z=rnd(4,7), n=rnd(2,4), m=rnd(2,4);
+  return {ctx:`Krysia ma trzy skarbonki. W zielonej ma ${z} zł, w niebieskiej ma ${n} razy więcej niż w zielonej, a w czerwonej ma o ${m} zł więcej niż w zielonej. Ile w sumie pieniędzy ma Krysia w trzech skarbonkach?`,
+    f:[{label:'Ile złotych jest w niebieskiej skarbonce?',ans:n*z},{label:'Ile złotych jest w czerwonej skarbonce?',ans:z+m},{label:'Ile złotych jest razem w trzech skarbonkach?',ans:z+n*z+z+m}],
+    hint:`„${n} razy więcej” – mnożymy: ${n} · ${z} = ${n*z}. „O ${m} więcej” – dodajemy: ${z} + ${m} = ${z+m}. Razem: ${z} + ${n*z} + ${z+m} = <b>${z+n*z+z+m}</b> zł (s. 100).`};
+},{book:true});
+add({lesson:2, kind:'recog', max:1, book:true, // s. 100: iloczyn i czynniki
+  render(c,a){
+    const x=rnd(4,9); let y; do{ y=rnd(4,9); }while(y===x);
+    this.hint=`W działaniu ${x} · ${y} = ${x*y} liczby ${x} i ${y} to <b>czynniki</b>, a wynik ${x*y} to <b>iloczyn</b> (s. 100).`;
+    ask(c,`Wiadomo, że <span class="num">${x} · ${y} = ${x*y}</span>. Która z liczb to iloczyn?`);
+    renderOptions(c, opts(`liczba ${x*y}`,`liczba ${x}`,`liczba ${y}`), a, true);
+  }});
+word(2,1,()=>{ // s. 101, zad. 3
+  const k=rnd(4,9), kg=rnd(6,9);
+  return {ctx:`Pan Mirek zebrał ${W(k,'skrzynkę','skrzynki','skrzynek')} jabłek. W każdej skrzynce jest ${kg} kg jabłek. Ile kilogramów jabłek zebrał pan Mirek?`,
+    f:[{label:'Ile kilogramów jabłek zebrał pan Mirek?',ans:k*kg}],
+    hint:`${k} skrzynek po ${kg} kg: ${k} · ${kg} = <b>${k*kg}</b> kg (s. 101, zad. 3).`};
+},{book:true});
+word(2,1,()=>{ // s. 101, zad. 5
+  const b=rnd(3,5), p=2, z=rnd(4,6), n1=rnd(6,9), n2=rnd(5,9), n3=rnd(5,9), n4=rnd(5,9);
+  return {ctx:`Bocian waży ${b} kg, puchacz waży ${p} kg, a zając waży ${z} kg. Oblicz, ile razem waży:`,
+    f:[{pre:`${n1} bocianów i ${n2} zajęcy:`,post:'kg',ans:n1*b+n2*z,size:'tiny'},{pre:`${n3} zajęcy i ${n4} puchaczy:`,post:'kg',ans:n3*z+n4*p,size:'tiny'}],
+    hint:`${n1} · ${b} + ${n2} · ${z} = ${n1*b} + ${n2*z} = <b>${n1*b+n2*z}</b> kg. ${n3} · ${z} + ${n4} · ${p} = ${n3*z} + ${n4*p} = <b>${n3*z+n4*p}</b> kg (s. 101, zad. 5).`};
+});
+word(2,2,()=>{ // s. 101, zad. 6: iloczyny
+  const n=one([[12,['1,12','2,6','3,4']],[20,['1,20','2,10','4,5']],[30,['1,30','2,15','3,10','5,6']],[40,['1,40','2,20','4,10','5,8']]]);
+  const g=++pairGrp;
+  const show=k=>k.split(',').join(' · ');
+  return {q:`Zapisz liczbę ${n[0]} w postaci iloczynu na trzy różne sposoby.`,
+    f:[{pre:`${n[0]} =`,pair:n[1],grp:g},{pre:`${n[0]} =`,pair:n[1],grp:g},{pre:`${n[0]} =`,pair:n[1],grp:g}],
+    hint:`Szukasz dwóch liczb, których iloczyn to ${n[0]}: ${n[1].map(k=>`${n[0]} = ${show(k)}`).join('; ')} (s. 101, zad. 6). Zamiana kolejności czynników to to samo działanie.`};
+},{book:true});
+word(2,2,()=>{ // s. 101, zad. 7: Ala, mama, tata
+  const a=rnd(6,9), m=rnd(3,5); let t; do{ t=rnd(3,6); }while(t===m);
+  return {ctx:`Ala ma ${lat(a)}. Jej mama jest od niej ${m} razy starsza, a tata jest ${t} razy starszy od Ali. Ile lat ma mama Ali, a ile lat ma jej tata?`,
+    f:[{label:'Ile lat ma mama Ali?',ans:a*m},{label:'Ile lat ma tata Ali?',ans:a*t}],
+    hint:`Mama: ${a} · ${m} = <b>${a*m}</b>. Tata: ${a} · ${t} = <b>${a*t}</b> (s. 101, zad. 7).`};
+},{book:true});
+word(2,2,()=>{ // s. 101, zad. 8: Staś, Irek, Tomek
+  const s=rnd(5,8), i=rnd(2,3), t=rnd(3,4)+(i===3?1:0);
+  return {ctx:`Staś ma ${W(s,'samochodzik','samochodziki','samochodzików')}. Irek ma ich ${i} razy więcej, a Tomek ma ich ${t} razy więcej niż Staś.`,
+    f:[{label:'Ile samochodzików ma Irek?',ans:s*i},{label:'Ile samochodzików ma Tomek?',ans:s*t},{label:'Ile samochodzików mają wszyscy trzej chłopcy razem?',ans:s+s*i+s*t}],
+    hint:`Irek: ${s} · ${i} = ${s*i}. Tomek: ${s} · ${t} = ${s*t}. Razem: ${s} + ${s*i} + ${s*t} = <b>${s+s*i+s*t}</b> (s. 101, zad. 8).`};
+},{book:true});
+word(2,2,()=>{ // s. 101, zad. 9: naklejki
+  const to=rnd(6,9), l=rnd(4,8), mk=rnd(5,9);
+  return {ctx:`W klasie 4c uczniowie zbierają naklejki z lemurami. Tosia ma ${to} naklejek, Lena ma ich ${l} razy więcej niż Tosia, a Maks ma o ${mk} naklejek więcej niż Tosia. Ile naklejek ma Lena, a ile ma Maks?`,
+    f:[{label:'Ile naklejek ma Lena?',ans:l*to},{label:'Ile naklejek ma Maks?',ans:to+mk}],
+    hint:`„${l} razy więcej” – mnożymy: ${l} · ${to} = <b>${l*to}</b>. „O ${mk} więcej” – dodajemy: ${to} + ${mk} = <b>${to+mk}</b> (s. 101, zad. 9).`};
+},{book:true});
+word(2,2,()=>{ // s. 101, zad. 10: prezent
+  const k=rnd(6,9), ad=2, mn=rnd(3,6); const A=k*ad, P=A-mn;
+  return {ctx:`Kacper, Adam i Przemek składają się na prezent dla kolegi z klasy. Kacper dał ${k} zł, Adam dał ${ad} razy więcej niż Kacper, a Przemek dał o ${mn} zł mniej niż Adam. Ile łącznie pieniędzy chłopcy mają na prezent dla kolegi?`,
+    f:[{label:'Ile złotych dał Adam?',ans:A},{label:'Ile złotych dał Przemek?',ans:P},{label:'Ile złotych chłopcy mają łącznie na prezent?',ans:k+A+P}],
+    hint:`Adam: ${ad} · ${k} = ${A}. Przemek: ${A} – ${mn} = ${P}. Razem: ${k} + ${A} + ${P} = <b>${k+A+P}</b> zł (s. 101, zad. 10).`};
+},{book:true});
+word(2,3,()=>{ // s. 101, zad. 11: magnesy (trudniejsze)
+  const tot=rnd(50,65), z=rnd(6,9), m=4;
+  return {ctx:`Maja ma ${tot} magnesów z nazwami państw i miast. Magnesów z nazwami państw ma ${z}, a magnesów z zagranicznymi nazwami miast ma ${m} razy więcej. Maja ma jeszcze magnesy z polskich miast. Ile magnesów z polskich miast ma Maja?`,
+    f:[{label:'Ile magnesów z zagranicznymi miastami ma Maja?',ans:m*z},{label:'Ile magnesów z państwami i zagranicznymi miastami ma Maja razem?',ans:z+m*z},{label:'Ile magnesów z polskich miast ma Maja?',ans:tot-z-m*z}],
+    hint:`Zagraniczne miasta: ${m} · ${z} = ${m*z}. Państwa i zagraniczne miasta: ${z} + ${m*z} = ${z+m*z}. Polskie miasta: ${tot} – ${z+m*z} = <b>${tot-z-m*z}</b> (s. 101, zad. 11).`};
+},{book:true});
 word(2,1,()=>{ // s. 123, zad. 8: samochody
   const o=rnd(12,19), t=one([2,3,4]);
   return {ctx:`Na parkingu stało ${o} samochodów osobowych i ${t} razy tyle ciężarowych. Ile samochodów ciężarowych stało na parkingu?`,
@@ -933,22 +1013,44 @@ word(4,2,()=>{ // poziom C
   return {q:'Oblicz. Zmień kolejność liczb, żeby rachunki były jak najprostsze.', f:items.map(({arr})=>({pre:`${arr.join(' · ')} =`,ans:arr[0]*arr[1]*arr[2],size:'short'})),
     hint:`Liczby możesz mnożyć w dowolnej kolejności. Najpierw pomnóż te, które dają okrągły wynik: ${items.map(({e,c2})=>`${e} · 5 = ${e*5}, potem ${e*5} · ${c2} = <b>${e*5*c2}</b>`).join('; ')} (s. 110).`};
 });
-word(4,2,()=>{ // poziom D: po kawałku z dodawaniem
+// „Po kawałku” – oceniamy tok rozwiązania (rozkład, iloczyny cząstkowe, suma), a wynik końcowy to tylko jeden z kroków.
+// x · y = m · [dziesiątki] + m · [jedności] = [m · dziesiątki] + [m · jedności] = [wynik]
+// Dowolny poprawny rozkład większej liczby jest dobry; kolejne kroki oceniamy względem rozkładu wybranego przez dziecko.
+let stepGrp=0;
+const stepFields=(pres,posts,checks,z='tiny')=>{ const g=++stepGrp;
+  return checks.map(([chk,fx],i)=>({g,chk,fx,size:z,...(i?{cont:true}:{}),pre:pres[i],post:posts[i]})); };
+const mulFields=(x,y)=>{ const s=Math.max(x,y), m=Math.min(x,y), t=Math.floor(s/10)*10;
+  const T=v=>(Number.isInteger(v[0])&&v[0]>0&&v[0]<s)?v[0]:t;
+  return stepFields([`${x} · ${y} = ${m} ·`,,,,],[`+ ${m} ·`,'=','+','=',''],[
+    [v=>Number.isInteger(v[0])&&v[0]>0&&v[0]<s, ()=>t],
+    [v=>v[1]===s-T(v), v=>s-T(v)],
+    [v=>v[2]===m*T(v), v=>m*T(v)],
+    [v=>v[3]===m*(s-T(v)), v=>m*(s-T(v))],
+    [v=>v[4]===x*y, ()=>x*y]]); };
+const mulHint=(x,y)=>{ const s=Math.max(x,y), m=Math.min(x,y), t=Math.floor(s/10)*10, u=s%10; return `${x} · ${y} = ${m} · ${t} + ${m} · ${u} = ${m*t} + ${m*u} = <b>${x*y}</b>`; };
+// x · y = m · [R] – m · [R – s] = [m · R] – [m · (R – s)] = [wynik]
+const mulSubFields=(x,y)=>{ const s=Math.max(x,y), m=Math.min(x,y), R=s<100?Math.ceil(s/10)*10:Math.ceil(s/100)*100;
+  const okR=r=>Number.isInteger(r)&&r>s&&r%10===0&&r-s<s, T=v=>okR(v[0])?v[0]:R;
+  return stepFields([`${x} · ${y} = ${m} ·`,,,,],[`– ${m} ·`,'=','–','=',''],[
+    [v=>okR(v[0]), ()=>R],
+    [v=>v[1]===T(v)-s, v=>T(v)-s],
+    [v=>v[2]===m*T(v), v=>m*T(v)],
+    [v=>v[3]===m*(T(v)-s), v=>m*(T(v)-s)],
+    [v=>v[4]===x*y, ()=>x*y]]); };
+const mulSubHint=(x,y)=>{ const s=Math.max(x,y), m=Math.min(x,y), R=s<100?Math.ceil(s/10)*10:Math.ceil(s/100)*100; return `${x} · ${y} = ${m} · ${R} – ${m} · ${R-s} = ${m*R} – ${m*(R-s)} = <b>${x*y}</b>`; };
+word(4,3,()=>{ // poziom D: po kawałku z dodawaniem
   const a=rnd(3,9), t=rnd(1,3), u=rnd(2,9), b=10*t+u;
-  return {q:'Pomnóż „po kawałku”.', f:[
-    {pre:`${a} · ${b} = ${a} · ${10*t} + ${a} · ${u} =`,post:'+',ans:a*10*t,size:'tiny'},
-    {cont:true,post:'=',ans:a*u,size:'tiny'},
-    {cont:true,ans:a*b,size:'tiny'}],
-    hint:`Rozbij ${b} na ${10*t} i ${u}: ${a} · ${b} = ${a} · ${10*t} + ${a} · ${u} = ${a*10*t} + ${a*u} = <b>${a*b}</b> (s. 110).`};
+  return {q:'Pomnóż „po kawałku”. Rozkład wybierz sam – ważne są wszystkie kroki.', f:mulFields(a,b),
+    hint:`Rozbij ${b} na ${10*t} i ${u}: ${mulHint(a,b)} (s. 110). Każdy poprawny rozkład jest dobry, a liczą się wszystkie kroki, nie tylko wynik.`};
 },{kart:'B'});
-word(4,2,()=>{ // poziom D: cztery iloczyny
-  const items=pairsUniq(4,3,9).map(([a,b])=>({a,b:b*one([2,3,4])+rnd(1,3)})).map(({a,b})=>Math.random()<.5?[a,b]:[b,a]);
-  return {q:'Pomnóż „po kawałku”.', f:items.map(([x,y])=>({pre:`${x} · ${y} =`,ans:x*y,size:'tiny'})), o:{grid:true},
-    hint:`Rozbij większą liczbę na dziesiątki i jedności: ${items.map(([x,y])=>{ const s=Math.max(x,y), m=Math.min(x,y), t=Math.floor(s/10)*10, u=s%10; return `${x} · ${y} = ${m} · ${t} + ${m} · ${u} = ${m*t} + ${m*u} = <b>${x*y}</b>`; }).join('; ')} (s. 110).`};
+word(4,4,()=>{ // poziom D: dwa iloczyny
+  const items=pairsUniq(2,3,9).map(([a,b])=>({a,b:10*rnd(1,4)+rnd(2,9)})).map(({a,b})=>Math.random()<.5?[a,b]:[b,a]);
+  return {q:'Pomnóż „po kawałku”. Rozkład wybierz sam – ważne są wszystkie kroki.', f:items.flatMap(([x,y])=>mulFields(x,y)),
+    hint:`Rozbij większą liczbę na dziesiątki i jedności, a każdy „kawałek” pomnóż osobno: ${items.map(([x,y])=>mulHint(x,y)).join('; ')} (s. 110).`};
 },{kart:'B'});
-word(4,2,()=>{ // z odejmowaniem
+word(4,3,()=>{ // z odejmowaniem
   const a=rnd(3,9), s=rnd(1,3), T=10*rnd(2,4), b=T-s;
-  return {q:'Pomnóż „po kawałku”, korzystając z odejmowania.', f:[
+  return {q:'Pomnóż „po kawałku”, korzystając z odejmowania. Uzupełnij kolejne kroki.', f:[
     {pre:`${a} · ${b} = ${a} · (${T} – ${s}) = ${a} · ${T} – ${a} · ${s} =`,post:'–',ans:a*T,size:'tiny'},
     {cont:true,post:'=',ans:a*s,size:'tiny'},
     {cont:true,ans:a*b,size:'tiny'}],
@@ -961,17 +1063,17 @@ add({lesson:4, kind:'recog', max:1, kart:'B', // który zapis pomoże
     ask(c,`Która równość pomoże wykonać mnożenie <span class="num">${x} · ${y}</span>?`);
     renderOptions(c, opts(`${x} · ${y} = ${x} · ${10*t} + ${x} · ${u}`,`${x} · ${y} = ${x} · ${10*t} + ${u}`,`${x} · ${y} = ${x} + ${10*t} + ${u}`,`${x} · ${y} = ${x} · ${10*t} · ${x} · ${u}`), a, true);
   }});
-word(4,2,()=>{ // Mistrz: trzycyfrowe
-  const xs=[]; while(xs.length<3){ const x=100*rnd(1,2)+10*rnd(0,5)+rnd(1,9); if(!xs.includes(x)) xs.push(x); }
-  const items=xs.map(x=>({x,a:rnd(2,6)})).map(o=>Math.random()<.5?[o.x,o.a]:[o.a,o.x]);
-  return {q:'Pomnóż „po kawałku”.', f:items.map(([p,q])=>({pre:`${p} · ${q} =`,ans:p*q,size:'short'})),
-    hint:`Rozbij liczbę trzycyfrową na setki, dziesiątki i jedności: ${items.map(([p,q])=>{ const x=Math.max(p,q), m=Math.min(p,q); return `${p} · ${q} = ${100*Math.floor(x/100)*m} + ${(Math.floor(x/10)%10)*10*m} + ${(x%10)*m} = <b>${p*q}</b>`; }).join('; ')} (s. 111).`};
+word(4,4,()=>{ // Mistrz: trzycyfrowe – setki, dziesiątki, jedności
+  const x=100*rnd(1,2)+10*rnd(1,5)+rnd(1,9), m=rnd(2,6), h=100*Math.floor(x/100), t=10*(Math.floor(x/10)%10), u=x%10, z='tiny';
+  return {q:'Pomnóż „po kawałku”: osobno setki, dziesiątki i jedności. Uzupełnij kolejne kroki.', f:[
+    {pre:`${x} · ${m} = ${h} · ${m} + ${t} · ${m} + ${u} · ${m} =`,post:'+',ans:h*m,size:z},{cont:true,post:'+',ans:t*m,size:z},{cont:true,post:'=',ans:u*m,size:z},{cont:true,ans:x*m,size:z}],
+    hint:`${x} = ${h} + ${t} + ${u}: ${x} · ${m} = ${h*m} + ${t*m} + ${u*m} = <b>${x*m}</b> (s. 111).`};
 },{kart:'B'});
-word(4,2,()=>{ // s. 112, zad. 9: odejmowanie
-  const bs=sample([19,28,29,39,48,49,59,198,298,398,299],4);
+word(4,4,()=>{ // s. 112, zad. 9: odejmowanie
+  const bs=sample([19,28,29,39,48,49,59,198,298,299],2);
   const items=bs.map(b=>({b,a:rnd(3,7)})).map(o=>Math.random()<.5?[o.a,o.b]:[o.b,o.a]);
-  return {q:'Oblicz sposobem „po kawałku” z odejmowaniem.', f:items.map(([x,y])=>({pre:`${x} · ${y} =`,ans:x*y,size:'short'})), o:{grid:true},
-    hint:`Zaokrąglij większą liczbę w górę i odejmij nadmiar: ${items.map(([x,y])=>{ const s=Math.max(x,y), m=Math.min(x,y), R=s<100?Math.ceil(s/10)*10:Math.ceil(s/100)*100; return `${x} · ${y} = ${m} · ${R} – ${m} · ${R-s} = ${m*R} – ${m*(R-s)} = <b>${x*y}</b>`; }).join('; ')} (s. 112).`};
+  return {q:'Oblicz sposobem „po kawałku” z odejmowaniem (zaokrąglij większą liczbę w górę). Uzupełnij kolejne kroki.', f:items.flatMap(([x,y])=>mulSubFields(x,y)),
+    hint:`Zaokrąglij większą liczbę w górę i odejmij nadmiar: ${items.map(([x,y])=>mulSubHint(x,y)).join('; ')} (s. 112).`};
 },{kart:'B'});
 word(4,2,()=>{ // s. 113, Czy już umiem? 3
   const a=rnd(6,9), p=rnd(14,18), b=rnd(10,14), q=rnd(5,7), s=rnd(3,8);
@@ -1099,15 +1201,25 @@ word(5,2,()=>{ // poziom C
   return {q:'Wykonaj dzielenie. Możesz skreślić tyle samo zer w obu liczbach.', f:items.map(({D,q})=>({pre:`${fmtN(D*q)} : ${fmtN(D)} =`,ans:q,size:'short'})), o:{grid:true},
     hint:`Skreśl w obu liczbach tyle samo zer i podziel to, co zostało: ${items.map(({D,q,e,k})=>{ const z=Math.min(k,zs(D*q)[1]); return `${fmtN(D*q)} : ${fmtN(D)} = ${fmtN(D*q/10**z)} : ${fmtN(D/10**z)} = <b>${fmtN(q)}</b>`; }).join('; ')} (s. 116).`};
 });
-word(5,2,()=>{ // poziom D
-  const items=Array.from({length:4},()=>{ const d=rnd(2,9), q=rnd(12,39); return {d,q,n:d*q}; });
-  return {q:'Podziel „po kawałku”.', f:items.map(({d,n})=>({pre:`${n} : ${d} =`,ans:n/d,size:'tiny'})), o:{grid:true},
-    hint:`Rozbij dzielną na dwie liczby podzielne przez dzielnik: ${items.map(({d,q,n})=>`${n} : ${d} = (${d*10*Math.floor(q/10)} + ${d*(q%10)}) : ${d} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b>`).join('; ')} (s. 116).`};
+// n : d = ([A] + [B]) : d = [A : d] + [B : d] = [wynik] – dziecko samo rozkłada dzielną; oceniamy każdy krok
+const divFields=(d,q)=>{ const n=d*q, A=d*10*Math.floor(q/10);
+  const okA=a=>Number.isInteger(a)&&a>0&&a<n&&a%d===0&&(n-a)%d===0, T=v=>okA(v[0])?v[0]:A;
+  return stepFields([`${n} : ${d} = (`,,,,],['+',`) : ${d} =`,'+','=',''],[
+    [v=>okA(v[0]), ()=>A],
+    [v=>v[1]===n-T(v), v=>n-T(v)],
+    [v=>v[2]===T(v)/d, v=>T(v)/d],
+    [v=>v[3]===(n-T(v))/d, v=>(n-T(v))/d],
+    [v=>v[4]===q, ()=>q]]); };
+const divHint=(d,q)=>`${d*q} : ${d} = (${d*10*Math.floor(q/10)} + ${d*(q%10)}) : ${d} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b>`;
+word(5,3,()=>{ // poziom D
+  const d=rnd(2,9), q=10*rnd(1,3)+rnd(2,9);
+  return {q:'Podziel „po kawałku”. Rozbij dzielną na dwie liczby podzielne przez dzielnik i uzupełnij kolejne kroki.', f:divFields(d,q),
+    hint:`Rozbij dzielną na dwie liczby podzielne przez dzielnik: ${divHint(d,q)} (s. 116). Każdy poprawny rozkład jest dobry, a liczą się wszystkie kroki, nie tylko wynik.`};
 },{kart:'C'});
-word(5,2,()=>{ // Mistrz
-  const items=Array.from({length:3},()=>{ const d=rnd(3,9), q=rnd(14,49); return {d,q,n:d*q}; });
-  return {q:'Podziel „po kawałku”.', f:items.map(({d,n})=>({pre:`${n} : ${d} =`,ans:n/d,size:'tiny'})),
-    hint:`Szukaj liczb podzielnych przez dzielnik: ${items.map(({d,q,n})=>`${n} : ${d} = (${d*10*Math.floor(q/10)} + ${d*(q%10)}) : ${d} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b>`).join('; ')} (s. 116–117).`};
+word(5,4,()=>{ // Mistrz: dwa dzielenia
+  const items=pairsUniq(2,3,9).map(([d])=>({d,q:10*rnd(2,4)+rnd(2,9)}));
+  return {q:'Podziel „po kawałku”. Rozkład wybierz sam – ważne są wszystkie kroki.', f:items.flatMap(({d,q})=>divFields(d,q)),
+    hint:`Szukaj liczb podzielnych przez dzielnik: ${items.map(({d,q})=>divHint(d,q)).join('; ')} (s. 116–117).`};
 },{kart:'C'});
 word(5,2,()=>{ // sumy: 72 : 3 = (60 + 12) : 3
   const d=rnd(3,9), t=rnd(1,4), u=rnd(1,9), q=10*t+u, A=d*10*t, B=d*u, n=A+B;
