@@ -1,0 +1,1464 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matematyka: Mnożenie i dzielenie</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318181b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fafafa; --card:#ffffff; --fg:#09090b; --muted:#f4f4f5; --muted-fg:#71717a; --border:#e4e4e7; --ring:#a1a1aa;
+    --primary:#18181b; --primary-fg:#fafafa;
+    --ok:#16a34a; --bad:#dc2626; --half:#ca8a04;
+    --ok-soft:color-mix(in srgb, var(--ok) 7%, var(--card));
+    --bad-soft:color-mix(in srgb, var(--bad) 6%, var(--card));
+    --half-soft:color-mix(in srgb, var(--half) 8%, var(--card));
+    --radius:10px;
+    --shadow:0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.06);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#09090b; --card:#111113; --fg:#fafafa; --muted:#1f1f23; --muted-fg:#a1a1aa; --border:#2a2a2e; --ring:#71717a;
+      --primary:#fafafa; --primary-fg:#18181b;
+      --ok:#4ade80; --bad:#f87171; --half:#facc15;
+      --shadow:0 1px 2px rgba(0,0,0,.4);
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:680px;margin:0 auto;padding:32px 16px 56px;}
+  [hidden]{display:none !important;}
+  :focus-visible{outline:2px solid var(--ring);outline-offset:2px;}
+  b,strong{font-weight:600;}
+  svg{flex:none;}
+  .num{white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  /* nagłówek */
+  header{margin-bottom:20px;}
+  .eyebrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem;color:var(--muted-fg);margin-bottom:10px;}
+  h1{font-size:1.75rem;line-height:1.2;font-weight:700;letter-spacing:-.025em;margin:0 0 6px;}
+  .lead{margin:0;color:var(--muted-fg);}
+
+  /* karta */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;}
+  @media (max-width:480px){ .card{padding:18px;} }
+  .sep{height:1px;background:var(--border);margin:22px 0;border:0;}
+  .label{font-size:.9rem;font-weight:600;margin:0 0 4px;}
+  .desc{font-size:.85rem;color:var(--muted-fg);margin:0;}
+  .small{font-size:.85rem;color:var(--muted-fg);}
+
+  /* przyciski */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--radius);font:inherit;font-size:.9rem;font-weight:500;cursor:pointer;border:1px solid transparent;transition:background .15s,border-color .15s,opacity .15s;white-space:nowrap;text-decoration:none;}
+  .btn svg{width:16px;height:16px;}
+  .btn-primary{background:var(--primary);color:var(--primary-fg);}
+  .btn-primary:hover{opacity:.88;}
+  .btn-outline{background:var(--card);border-color:var(--border);color:var(--fg);}
+  .btn-outline:hover{background:var(--muted);}
+  .btn-ghost{background:transparent;color:var(--muted-fg);}
+  .btn-ghost:hover{background:var(--muted);color:var(--fg);}
+  .btn:disabled{opacity:.45;pointer-events:none;}
+  .btn-link{background:none;border:0;padding:0;font:inherit;font-size:.85rem;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+  .actions.end{justify-content:flex-end;}
+
+  /* odznaki */
+  .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:500;color:var(--muted-fg);background:var(--card);line-height:1.6;}
+  .badge svg{width:13px;height:13px;}
+  .badge.solid{background:var(--primary);color:var(--primary-fg);border-color:var(--primary);}
+  #timer.low{color:var(--bad);border-color:var(--bad);}
+  #timer{display:inline-flex;align-items:center;gap:5px;}
+
+  /* zakładki */
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--muted);padding:4px;border-radius:var(--radius);gap:4px;margin:0 0 20px;}
+  .tab{display:flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;border-radius:7px;padding:8px 6px;font:inherit;font-size:.85rem;font-weight:500;color:var(--muted-fg);cursor:pointer;}
+  .tab[aria-selected="true"]{background:var(--card);color:var(--fg);box-shadow:var(--shadow);}
+  .facts{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px;}
+  .facts li{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;}
+  .facts li svg{width:16px;height:16px;margin-top:3px;color:var(--muted-fg);}
+  .rules{margin:8px 0 0;padding-left:18px;font-size:.85rem;color:var(--muted-fg);}
+  .rules li{margin:3px 0;}
+
+  /* wybór tematów */
+  .row-between{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+  .lessons{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:10px;}
+  .lesson{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--border);cursor:pointer;font-size:.9rem;}
+  .lesson:first-child{border-top:0;}
+  .lesson:hover{background:var(--muted);}
+  .lesson input{width:16px;height:16px;accent-color:var(--primary);margin:0;flex:none;}
+  .lesson .nr{color:var(--muted-fg);font-variant-numeric:tabular-nums;min-width:1.1em;}
+  .lesson .cnt{margin-left:auto;font-size:.78rem;color:var(--muted-fg);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  /* postęp */
+  .q-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.8rem;color:var(--muted-fg);font-variant-numeric:tabular-nums;}
+  .progress{height:6px;background:var(--muted);border-radius:999px;overflow:hidden;margin:10px 0 18px;}
+  .progress > div{height:100%;width:0;background:var(--primary);transition:width .3s;}
+  .q-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+
+  /* treść pytania */
+  .q-instruction{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;line-height:1.45;margin:0 0 6px;}
+  .q-context{font-size:.95rem;line-height:1.6;background:var(--muted);border-radius:var(--radius);padding:12px 14px;margin:10px 0;}
+  .q-context p{margin:0 0 6px;}
+  .q-context p:last-child{margin:0;}
+
+  /* odpowiedzi do wyboru */
+  .options{display:grid;gap:8px;margin-top:16px;grid-template-columns:repeat(2,1fr);}
+  .options.one-col{grid-template-columns:1fr;}
+  @media (max-width:520px){ .options{grid-template-columns:1fr;} }
+  .opt{display:flex;align-items:center;gap:12px;text-align:left;min-height:46px;padding:10px 14px;border:1px solid var(--border);background:var(--card);border-radius:var(--radius);font:inherit;font-size:.95rem;color:var(--fg);cursor:pointer;transition:background .12s,border-color .12s,box-shadow .12s;width:100%;font-variant-numeric:tabular-nums;}
+  .opt:hover:not(:disabled){background:var(--muted);}
+  .opt:disabled{cursor:default;}
+  .opt .key{flex:none;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;display:grid;place-items:center;font-size:.72rem;font-weight:600;color:var(--muted-fg);background:var(--card);}
+  .opt .txt{flex:1;}
+  .opt .mark{flex:none;width:18px;height:18px;display:none;}
+  .opt.selected{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg);}
+  .opt.selected .key{background:var(--primary);color:var(--primary-fg);border-color:var(--primary);}
+  .opt.correct{border-color:var(--ok);background:var(--ok-soft);box-shadow:none;}
+  .opt.correct .mark.m-ok{display:block;color:var(--ok);}
+  .opt.correct .key{border-color:var(--ok);color:var(--ok);background:transparent;}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-soft);box-shadow:none;}
+  .opt.wrong .mark.m-bad{display:block;color:var(--bad);}
+  .opt.wrong .key{border-color:var(--bad);color:var(--bad);background:transparent;}
+  .opt.missed{border-style:dashed;background:var(--card);}
+  .multi .key{border-radius:4px;}
+
+  /* przyporządkowanie */
+  .sort-list{display:grid;gap:8px;margin-top:16px;}
+  .sort-row{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);}
+  .sort-item{flex:1 1 170px;font-weight:500;font-size:.93rem;font-variant-numeric:tabular-nums;}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;}
+  .chip{border:1px solid var(--border);background:var(--card);border-radius:999px;padding:4px 13px;font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;color:var(--fg);min-width:38px;}
+  .chip:hover:not(:disabled){background:var(--muted);}
+  .chip:disabled{cursor:default;}
+  .chip.selected{background:var(--primary);color:var(--primary-fg);border-color:var(--primary);}
+  .sort-row.correct{border-color:var(--ok);background:var(--ok-soft);}
+  .sort-row.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .sort-row.wrong .chip.selected{background:var(--bad);border-color:var(--bad);color:#fff;}
+  .chip.should{border-color:var(--ok);border-style:dashed;color:var(--ok);background:transparent;}
+  .match-fix{font-size:.85rem;color:var(--ok);font-weight:600;width:100%;}
+  .sel{height:42px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--fg);font:inherit;font-size:.95rem;padding:0 10px;max-width:100%;}
+  .sel:disabled{opacity:1;background:var(--muted);}
+  .sel.correct{border-color:var(--ok);background:var(--ok-soft);}
+  .sel.wrong{border-color:var(--bad);background:var(--bad-soft);}
+
+  /* pola liczbowe */
+  .fields{display:grid;gap:12px;margin-top:16px;}
+  .fields.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px;}
+  @media (max-width:480px){ .fields.grid{grid-template-columns:1fr;} }
+  .nrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;}
+  .nlabel{flex:1 1 240px;font-size:.93rem;font-weight:500;margin-right:4px;}
+  .seg{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 8px;}
+  .eq{font-weight:500;font-variant-numeric:tabular-nums;}
+  .inp{width:100%;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--fg);font:inherit;font-size:1rem;height:42px;padding:0 12px;transition:border-color .12s, box-shadow .12s;font-variant-numeric:tabular-nums;}
+  .inp.short{width:130px;} .inp.tiny{width:92px;} .inp.wide{width:180px;} .inp.pair{width:120px;}
+  .inp:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb, var(--ring) 25%, transparent);}
+  .inp:disabled{opacity:1;background:var(--muted);}
+  .inp.correct{border-color:var(--ok);background:var(--ok-soft);}
+  .inp.wrong{border-color:var(--bad);background:var(--bad-soft);}
+  .fix{font-size:.85rem;color:var(--ok);font-weight:600;}
+
+  /* komunikaty */
+  .alert{display:grid;grid-template-columns:18px 1fr;gap:2px 10px;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:16px;font-size:.9rem;background:var(--card);}
+  .alert > svg{width:18px;height:18px;margin-top:2px;}
+  .alert-title{font-weight:600;}
+  .alert-body{grid-column:2;color:var(--muted-fg);line-height:1.55;}
+  .alert-body b{color:var(--fg);}
+  .alert.ok > svg, .alert.ok .alert-title{color:var(--ok);}
+  .alert.half > svg, .alert.half .alert-title{color:var(--half);}
+  .alert.bad > svg, .alert.bad .alert-title{color:var(--bad);}
+
+  /* wyniki */
+  .score-big{font-size:2.6rem;font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;}
+  .score-big span{font-size:1.2rem;color:var(--muted-fg);font-weight:500;letter-spacing:0;}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;}
+  @media (max-width:420px){ .tiles{grid-template-columns:1fr;} }
+  .tile{border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+  .tile-head{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted-fg);}
+  .tile-head svg{width:14px;height:14px;}
+  .tile-val{font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .tile-val small{font-size:.85rem;color:var(--muted-fg);font-weight:500;}
+  .meter{height:6px;background:var(--muted);border-radius:999px;overflow:hidden;margin-top:6px;}
+  .meter > div{height:100%;background:var(--primary);}
+  .breakdown{display:grid;gap:10px;margin-top:8px;}
+  .bd-row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:.88rem;}
+  .bd-row .bd-score{font-variant-numeric:tabular-nums;color:var(--muted-fg);}
+  .bd-row .meter{grid-column:1 / -1;margin:0;}
+  .review{display:grid;gap:8px;margin-top:8px;}
+  .review details{border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;}
+  .review summary{cursor:pointer;font-size:.9rem;font-weight:500;}
+  .review summary .small{font-weight:400;}
+  .review .rv-body{font-size:.88rem;color:var(--muted-fg);margin-top:8px;line-height:1.55;}
+  .review .rv-body b{color:var(--fg);}
+
+  footer{text-align:center;margin-top:24px;color:var(--muted-fg);font-size:.8rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="badge">Matematyka · klasa 4</span><span class="badge">Dział III · s. 92–124</span></div>
+    <h1>Mnożenie i dzielenie</h1>
+    <p class="lead">Zadania tekstowe, tabliczka mnożenia i dzielenia, sprytne mnożenie i dzielenie. Liczby w zadaniach losują się za każdym razem.</p>
+  </header>
+
+  <!-- START -->
+  <section id="start-screen" class="card">
+    <div class="tabs" role="tablist" aria-label="Co chcesz zrobić?">
+      <button class="tab" role="tab" id="tab-kart" data-tab="kart">Kartkówka</button>
+      <button class="tab" role="tab" id="tab-test" data-tab="test">Sprawdzian</button>
+      <button class="tab" role="tab" id="tab-topic" data-tab="topic">Ćwicz temat</button>
+    </div>
+
+    <div id="panel-kart" role="tabpanel" class="panel">
+      <p class="label">Kartkówka</p>
+      <p class="desc">Tabliczka mnożenia do 100; mnożenie „po kawałku”; dzielenie „po kawałku”.</p>
+      <ul class="facts" id="kart-facts"></ul>
+      <div class="actions"><button id="kart-btn" class="btn btn-primary"></button></div>
+    </div>
+
+    <div id="panel-test" role="tabpanel" class="panel" hidden>
+      <p class="label">Sprawdzian z działu III – Mnożenie i dzielenie</p>
+      <p class="desc">Podręcznik, str. 92–124.</p>
+      <ul class="facts" id="test-facts"></ul>
+      <div class="actions"><button id="full-btn" class="btn btn-primary"></button></div>
+    </div>
+
+    <div id="panel-topic" role="tabpanel" class="panel" hidden>
+      <div class="row-between">
+        <div>
+          <p class="label">Co chcesz poćwiczyć?</p>
+          <p class="desc">Zaznacz jeden albo kilka tematów. Bez limitu czasu.</p>
+        </div>
+        <div class="small"><button class="btn-link" id="pick-all">wszystkie</button> · <button class="btn-link" id="pick-none">żadne</button></div>
+      </div>
+      <div class="lessons" id="lesson-pick"></div>
+      <div class="actions"><button id="start-btn" class="btn btn-primary"></button></div>
+    </div>
+
+    <hr class="sep">
+    <ul class="rules">
+      <li>Wyniki wpisuj cyframi. W dużych liczbach odstępy nie mają znaczenia: <b>12 700</b> i <b>12700</b> to ta sama odpowiedź.</li>
+      <li>Gdy w zadaniu jest kilka pytań, każdy wynik liczy się osobno. Za część dobrych odpowiedzi dostajesz część punktów.</li>
+      <li>Nie musisz dopisywać jednostek (zł, cm, m).</li>
+    </ul>
+  </section>
+
+  <!-- PYTANIA -->
+  <section id="quiz-screen" class="card" hidden>
+    <div class="q-top">
+      <span id="progress-text"></span>
+      <span style="display:flex;gap:8px;align-items:center">
+        <span class="badge" id="timer" hidden></span>
+        <span>Punkty: <b id="score-text">0</b></span>
+        <button id="quit-btn" class="btn-link small">Zakończ</button>
+      </span>
+    </div>
+    <div class="progress"><div id="progress-fill"></div></div>
+    <div class="q-meta" id="q-meta"></div>
+    <div id="question-area"></div>
+    <div id="feedback" aria-live="polite"></div>
+    <div class="actions end">
+      <button id="next-btn" class="btn btn-primary" hidden></button>
+    </div>
+  </section>
+
+  <!-- WYNIKI -->
+  <section id="result-screen" class="card" hidden>
+    <div class="row-between">
+      <div>
+        <p class="desc" id="result-kicker">Twój wynik</p>
+        <div class="score-big" id="result-score"></div>
+      </div>
+      <span class="badge solid" id="result-grade"></span>
+    </div>
+    <p id="result-desc" style="margin:14px 0 0"></p>
+    <div class="tiles" id="tiles"></div>
+    <hr class="sep">
+    <p class="label">Wyniki z tematów</p>
+    <div class="breakdown" id="breakdown"></div>
+    <div id="review-wrap">
+      <hr class="sep">
+      <p class="label">Do powtórki</p>
+      <p class="desc">Kliknij zadanie, żeby zobaczyć wyjaśnienie.</p>
+      <div class="review" id="review"></div>
+    </div>
+    <div class="actions">
+      <button id="retry-wrong-btn" class="btn btn-primary"></button>
+      <button id="again-btn" class="btn btn-outline"></button>
+      <button id="settings-btn" class="btn btn-ghost">Wróć do menu</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>Na podstawie podręcznika do matematyki dla klasy 4, dział III „Mnożenie i dzielenie” (s. 92–124): lekcje 1–5, „Matematyka w akcji”, „Podsumowanie” i „Zadania powtórzeniowe”. Zadania generowane losowo.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   NARZĘDZIA
+   ========================================================= */
+const $ = id => document.getElementById(id);
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const one = a => a[Math.floor(Math.random()*a.length)];
+const sample = (a,n) => shuffle(a).slice(0,n);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => String(Math.round(n*10)/10).replace('.', ',');
+let uidN=0; const uid = () => 'u'+(++uidN);
+
+// Liczby: cztery cyfry bez odstępu (7309), od pięciu cyfr grupy po trzy (12 800) – jak w podręczniku
+const fmtN = n => { const s=String(n); return s.length<5 ? s : s.replace(/\B(?=(\d{3})+(?!\d))/g,' '); };
+const nb = n => `<span class="num">${fmtN(n)}</span>`;
+// odmiana po liczebniku: 1 jabłko, 2–4 jabłka, 5+ jabłek (ale 12–14 jabłek)
+function form(n, o, few, many){
+  if(n===1) return o;
+  const d=n%10, t=n%100;
+  return d>=2 && d<=4 && !(t>=12 && t<=14) ? few : many;
+}
+const W = (n,a,b,c) => `${fmtN(n)} ${form(n,a,b,c)}`;
+const lat = n => W(n,'rok','lata','lat');
+const MUL='·', DIV=':', SUB='–';
+const ex = (a,op,b) => `${fmtN(a)} ${op} ${fmtN(b)}`;
+// liczba bez końcowych zer i ich ilość (do podpowiedzi)
+const zs = n => { let z=0; while(n%10===0 && n>0){ n/=10; z++; } return [n,z]; };
+function pairsUniq(n,lo,hi){ const seen=new Set(), out=[]; while(out.length<n){ const a=rnd(lo,hi), b=rnd(lo,hi), k=a<b?a+','+b:b+','+a; if(seen.has(k)) continue; seen.add(k); out.push([a,b]); } return out; }
+
+const svgI = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const ICON = {
+  check: svgI('<path d="M20 6 9 17l-5-5"/>'),
+  x:     svgI('<path d="M18 6 6 18M6 6l12 12"/>'),
+  half:  svgI('<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>'),
+  arrow: svgI('<path d="M5 12h14M12 5l7 7-7 7"/>'),
+  reset: svgI('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'),
+  clock: svgI('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+  eye:   svgI('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  pen:   svgI('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
+  play:  svgI('<path d="m6 3 14 9-14 9z"/>'),
+  list:  svgI('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),
+  book:  svgI('<path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/>')
+};
+
+/* =========================================================
+   TYPY PYTAŃ
+   Każde pytanie woła onAnswer(ułamek 0–1). Punkty liczy handleAnswer.
+   ========================================================= */
+function lockAll(el){ el.querySelectorAll('button,input,select,textarea').forEach(b=>b.disabled=true); }
+function ask(c, html, extra=''){ c.innerHTML = `<p class="q-instruction">${html}</p>${extra}`; }
+const ctx = html => `<div class="q-context">${html}</div>`;
+const opts = (correct, ...wrong) => shuffle([{text:correct,correct:true}, ...wrong.map(t=>({text:t,correct:false}))]);
+// odpowiedzi liczbowe: poprawna + trzy różne błędne
+function numOpts(correct, cands, f=fmtN){
+  const seen=new Set([correct]), wrong=[];
+  for(const x of [...cands, correct+10, correct-10, correct*2, correct+1, correct-1, correct+100]){
+    if(!Number.isInteger(x) || x<0 || seen.has(x)) continue;
+    seen.add(x); wrong.push(x);
+    if(wrong.length===3) break;
+  }
+  return opts(f(correct), ...wrong.map(f));
+}
+const LETTERS='ABCDEFGH';
+const markHTML = `<span class="mark m-ok">${ICON.check}</span><span class="mark m-bad">${ICON.x}</span>`;
+
+function renderOptions(c, options, onAnswer, oneCol){
+  const wrap=document.createElement('div');
+  wrap.className='options'+(oneCol||options.length===3?' one-col':'');
+  options.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="key">${LETTERS[i]}</span><span class="txt">${o.html||esc(o.text)}</span>${markHTML}`;
+    b.onclick=()=>{
+      lockAll(wrap);
+      b.classList.add(o.correct?'correct':'wrong');
+      if(!o.correct) wrap.children[options.findIndex(x=>x.correct)].classList.add('correct');
+      onAnswer(o.correct?1:0);
+    };
+    wrap.appendChild(b);
+  });
+  c.appendChild(wrap);
+}
+
+// Kilka poprawnych: trzeba zaznaczyć wszystkie i tylko je. Jeden błąd = pół punktu.
+function renderMulti(c, options, onAnswer){
+  const wrap=document.createElement('div'); wrap.className='options multi';
+  const chosen=new Set();
+  options.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='opt';
+    b.setAttribute('aria-pressed','false');
+    b.innerHTML=`<span class="key"></span><span class="txt">${o.html||esc(o.text)}</span>${markHTML}`;
+    b.onclick=()=>{
+      chosen.has(i)?chosen.delete(i):chosen.add(i);
+      const on=chosen.has(i); b.classList.toggle('selected',on); b.setAttribute('aria-pressed',on);
+      b.querySelector('.key').innerHTML = on ? ICON.check.replace('<svg','<svg width="12" height="12"') : '';
+      check.disabled = chosen.size===0;
+    };
+    wrap.appendChild(b);
+  });
+  c.appendChild(wrap);
+  const row=document.createElement('div'); row.className='actions end';
+  const check=document.createElement('button'); check.className='btn btn-primary'; check.textContent='Sprawdź'; check.disabled=true;
+  row.appendChild(check); c.appendChild(row);
+  check.onclick=()=>{
+    lockAll(wrap); check.disabled=true;
+    let errors=0;
+    options.forEach((o,i)=>{
+      const b=wrap.children[i]; b.classList.remove('selected'); b.querySelector('.key').innerHTML='';
+      if(chosen.has(i)&&o.correct) b.classList.add('correct');
+      else if(chosen.has(i)&&!o.correct){ b.classList.add('wrong'); errors++; }
+      else if(!chosen.has(i)&&o.correct){ b.classList.add('correct','missed'); errors++; }
+    });
+    onAnswer(errors===0?1:errors===1?0.5:0);
+  };
+}
+
+// Przyporządkuj każdy element do kategorii. items: [{html, cat}]
+function renderSort(c, cats, items, onAnswer){
+  const list=document.createElement('div'); list.className='sort-list';
+  const picked=new Array(items.length).fill(null);
+  items.forEach((it,i)=>{
+    const row=document.createElement('div'); row.className='sort-row';
+    row.innerHTML=`<span class="sort-item">${it.html}</span><span class="chips" role="group"></span>`;
+    const chips=row.querySelector('.chips');
+    cats.forEach((cat,ci)=>{
+      const b=document.createElement('button'); b.className='chip'; b.textContent=cat;
+      b.onclick=()=>{ picked[i]=ci; [...chips.children].forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); check.disabled = picked.some(p=>p===null); };
+      chips.appendChild(b);
+    });
+    list.appendChild(row);
+  });
+  c.appendChild(list);
+  const r=document.createElement('div'); r.className='actions end';
+  const check=document.createElement('button'); check.className='btn btn-primary'; check.textContent='Sprawdź'; check.disabled=true;
+  r.appendChild(check); c.appendChild(r);
+  check.onclick=()=>{
+    lockAll(list); check.disabled=true;
+    let good=0;
+    items.forEach((it,i)=>{
+      const row=list.children[i];
+      if(picked[i]===it.cat){ good++; row.classList.add('correct'); }
+      else { row.classList.add('wrong'); row.querySelectorAll('.chip')[it.cat].classList.add('should'); }
+    });
+    onAnswer(good/items.length);
+  };
+}
+
+// Dopasuj: do każdego elementu z lewej wybierz element z listy. pairs: [{l, r}]
+function renderMatch(c, pairs, onAnswer){
+  const rights=shuffle([...new Set(pairs.map(p=>p.r))]);
+  const list=document.createElement('div'); list.className='sort-list';
+  pairs.forEach(p=>{
+    const row=document.createElement('div'); row.className='sort-row';
+    row.innerHTML=`<span class="sort-item">${p.l}</span><select class="sel" aria-label="Dopasuj: ${esc(p.l.replace(/<[^>]+>/g,''))}"><option value="">— wybierz —</option>${rights.map(r=>`<option>${esc(r)}</option>`).join('')}</select><span class="match-fix" hidden></span>`;
+    list.appendChild(row);
+  });
+  c.appendChild(list);
+  const selects=[...list.querySelectorAll('select')];
+  const r=document.createElement('div'); r.className='actions end';
+  const check=document.createElement('button'); check.className='btn btn-primary'; check.textContent='Sprawdź'; check.disabled=true;
+  r.appendChild(check); c.appendChild(r);
+  selects.forEach(s=>s.addEventListener('change',()=>{ check.disabled=selects.some(x=>!x.value); }));
+  check.onclick=()=>{
+    lockAll(list); check.disabled=true;
+    let good=0;
+    pairs.forEach((p,i)=>{
+      const row=list.children[i];
+      if(selects[i].value===p.r){ good++; row.classList.add('correct'); }
+      else { row.classList.add('wrong'); const f=row.querySelector('.match-fix'); f.textContent='➜ '+p.r; f.hidden=false; }
+    });
+    onAnswer(good/pairs.length);
+  };
+}
+
+/* Pola do wpisania wyniku.
+   fields: [{label, pre, post, ans, acc, size, cont, sel, pair, grp}]
+     label – pytanie nad polem; pre/post – tekst przed/po polu (np. „7 · 12 =”)
+     ans – dobra liczba (acc – inne dopuszczalne); cont – pole w tej samej linijce co poprzednie
+     sel – lista do wyboru (ans to tekst); pair/grp – działanie z tabliczki: lista par „a,b” (rosnąco), wspólna grupa pól
+   Wynik: ułamek dobrych pól. */
+function renderNum(c, fields, onAnswer, opt={}){
+  const wrap=document.createElement('div'); wrap.className='fields'+(opt.grid?' grid':'');
+  let row=null;
+  fields.forEach(f=>{
+    const id=uid();
+    const ctrl = f.sel
+      ? `<select class="sel" id="${id}"><option value="">— wybierz —</option>${f.sel.map(s=>`<option>${esc(s)}</option>`).join('')}</select>`
+      : `<input class="inp ${f.pair?'pair':(f.size||'short')}" id="${id}" type="text" inputmode="${f.pair?'text':'numeric'}" ${f.pair?'placeholder="np. 4 · 9"':''} autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">`;
+    const seg=`<span class="seg">${f.pre?`<span class="eq">${f.pre}</span>`:''}${ctrl}${f.post?`<span class="eq">${f.post}</span>`:''}<span class="fix" hidden></span></span>`;
+    if(f.cont && row) row.insertAdjacentHTML('beforeend',seg);
+    else{
+      row=document.createElement('div'); row.className='nrow';
+      row.innerHTML=(f.label?`<label class="nlabel" for="${id}">${f.label}</label>`:'')+seg;
+      wrap.appendChild(row);
+    }
+  });
+  c.appendChild(wrap);
+  const r=document.createElement('div'); r.className='actions end';
+  const idk=document.createElement('button'); idk.className='btn btn-ghost'; idk.textContent='Nie wiem';
+  const check=document.createElement('button'); check.className='btn btn-primary'; check.textContent='Sprawdź';
+  r.append(idk,check); c.appendChild(r);
+  const inputs=[...wrap.querySelectorAll('input,select')];
+  setTimeout(()=>inputs[0].focus({preventScroll:true}),60);
+  inputs.forEach((inp,i)=>inp.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return;
+    e.preventDefault();
+    if(i<inputs.length-1) inputs[i+1].focus(); else check.click();
+  }));
+  const finish = giveUp => {
+    lockAll(wrap); idk.disabled=true; check.disabled=true;
+    const used={}, res=[];
+    fields.forEach((f,i)=>{
+      const raw = giveUp ? '' : inputs[i].value;
+      let ok=false;
+      if(f.pair){
+        const nums=(String(raw).match(/\d+/g)||[]).map(Number);
+        const set=used[f.grp]||(used[f.grp]=new Set());
+        if(nums.length===2){ const k=nums.slice().sort((x,y)=>x-y).join(','); if(f.pair.includes(k)&&!set.has(k)){ ok=true; set.add(k); } }
+      } else if(f.sel) ok = raw===f.ans;
+      else { const v=String(raw).replace(/\D/g,''); ok = v!=='' && (f.acc||[f.ans]).some(x=>String(x).replace(/\D/g,'')===v); }
+      res.push(ok);
+    });
+    let good=0;
+    fields.forEach((f,i)=>{
+      const el=inputs[i], fix=el.closest('.seg').querySelector('.fix');
+      if(res[i]){ good++; el.classList.add('correct'); return; }
+      el.classList.add('wrong');
+      let show;
+      if(f.pair){ const set=used[f.grp]; const k=f.pair.find(p=>!set.has(p)) || f.pair[0]; set.add(k); show=k.split(',').join(' · '); }
+      else show = f.show ?? (f.sel ? f.ans : fmtN(f.ans));
+      fix.textContent='➜ '+show; fix.hidden=false;
+    });
+    onAnswer(good/fields.length);
+  };
+  check.onclick=()=>{ if(inputs.every(i=>!i.value.trim())){ inputs[0].focus(); return; } finish(false); };
+  idk.onclick=()=>finish(true);
+}
+
+/* =========================================================
+   ZADANIA
+   kind: 'recog' – wybieranie odpowiedzi, 'recall' – wpisywanie wyniku
+   max:  punkty za zadanie (za część dobrych odpowiedzi – część punktów)
+   kart: 'A' | 'B' | 'C' – zadanie może trafić do kartkówki
+   book: zadanie wzorowane na „Czy już umiem?” albo „Zadaniach powtórzeniowych”
+   ========================================================= */
+const LESSONS = [
+  null,
+  {name:'Jak rozwiązywać zadania tekstowe', pages:'s. 92–97'},
+  {name:'Tabliczka mnożenia', pages:'s. 98–102'},
+  {name:'Tabliczka dzielenia', pages:'s. 103–108'},
+  {name:'Sprytne mnożenie', pages:'s. 109–113, 120–121'},
+  {name:'Sprytne dzielenie', pages:'s. 114–119'}
+];
+const KARTS = {
+  A:{name:'Tabliczka mnożenia do 100', pages:'s. 98–102'},
+  B:{name:'Mnożenie „po kawałku”', pages:'s. 110–111'},
+  C:{name:'Dzielenie „po kawałku”', pages:'s. 116–117'}
+};
+const Q=[];
+const add = q => { q.id=Q.length; Q.push(q); };
+// zadanie z polami do wpisania; gen zwraca {q, ctx, f, o, hint}
+const word = (lesson, max, gen, o={}) => add({ lesson, kind:'recall', max, ...o,
+  render(c,a){ const d=gen(); this.hint=d.hint; ask(c, d.q||'Rozwiąż zadanie.', d.ctx?ctx(d.ctx):''); renderNum(c,d.f,a,d.o); } });
+
+/* ---------- 1. Jak rozwiązywać zadania tekstowe (s. 92–97) ---------- */
+word(1,2,()=>{ // s. 94: Ania, Zosia, Marta, Krysia
+  const A=rnd(30,60), a=rnd(3,9), b=rnd(10,20), cc=rnd(20,40), Z=A+a, M=Z-b, K=M+cc, S=A+Z+M+K;
+  return {q:'Przeczytaj zadanie i odpowiedz na pytania.',
+    ctx:`Ania ma ${W(A,'naklejkę','naklejki','naklejek')}, a Zosia ma ich o ${a} więcej. Marta ma o ${b} naklejek mniej niż Zosia, a Krysia ma o ${cc} naklejek więcej niż Marta. Ile naklejek mają dziewczynki razem?`,
+    f:[{label:'Ile naklejek ma Zosia?',ans:Z},{label:'Ile naklejek ma Marta?',ans:M},{label:'Ile naklejek ma Krysia?',ans:K},{label:'Ile naklejek mają razem wszystkie dziewczynki?',ans:S}],
+    hint:`Opisuj, co obliczasz, i zapisz wszystkie działania. Zosia: ${A} + ${a} = ${Z}. Marta: ${Z} – ${b} = ${M}. Krysia: ${M} + ${cc} = ${K}. Razem: ${A} + ${Z} + ${M} + ${K} = <b>${S}</b> (s. 94).`};
+});
+add({lesson:1, kind:'recog', max:1, // s. 94: QUIZ
+  render(c,a){
+    const sc=one([
+      ['Ile pieniędzy zostało Stasiowi?', n=>`Stasiowi zostało ${n} zł.`, n=>`Staś wydał ${n} zł.`, n=>`Staś kupił ${n} piłki.`],
+      ['Ile czasu Ola czytała książkę?', n=>`Ola czytała książkę ${n} minut.`, n=>`Ola przeczytała ${n} stron.`, n=>`Książka kosztowała ${n} zł.`],
+      ['Ile cukierków zostało Marcie?', n=>`Marcie zostało ${n} cukierków.`, n=>`Marta zjadła ${n} cukierków.`, n=>`Marta dostała ${n} cukierków od babci.`]
+    ]);
+    const n=rnd(5,19);
+    this.hint=`Po zapisaniu odpowiedzi przeczytaj jeszcze raz pytanie i sprawdź, czy odpowiedź do niego pasuje. Pytanie „${sc[0]}” pyta o to, co <b>zostało</b> albo trwało – a nie o to, co wydano, kupiono czy zjedzono (s. 94).`;
+    ask(c,'Która odpowiedź na poniższe pytanie może być poprawna?',ctx(`<b>${sc[0]}</b>`));
+    renderOptions(c, opts(sc[1](n), sc[2](n+rnd(1,4)), sc[3](rnd(2,9))), a, true);
+  }});
+word(1,1,()=>{ // s. 95: Beata i Kuba
+  const b=rnd(12,17), d=rnd(2,4);
+  return {q:'Przeczytaj, co mówi Beata, i odpowiedz na pytania.', ctx:`Beata mówi: „Mam ${lat(b)}, czyli o ${d} ${form(d,'rok','lata','lat')} więcej niż Kuba.”`,
+    f:[{label:'Kto jest starszy: Beata czy Kuba?',sel:['Beata','Kuba'],ans:'Beata'},{label:'Ile lat ma Kuba?',ans:b-d}],
+    hint:`Beata ma o ${d} lata <b>więcej</b>, więc Kuba ma o ${d} lata <b>mniej</b>: ${b} – ${d} = <b>${b-d}</b>. Starsza jest Beata (s. 95).`};
+});
+word(1,2,()=>{ // s. 96, zad. 3
+  const k=rnd(2,4), p=rnd(3,6), nap=rnd(2,5), tot=k*p+nap, mon=tot<20?20:30;
+  return {ctx:`Ania kupiła w sklepiku szkolnym ${W(k,'bułkę','bułki','bułek')} po ${p} zł każda i napój za ${nap} zł. Ile reszty z ${mon} zł otrzymała Ania?`,
+    f:[{label:'Ile złotych zapłaciła Ania za zakupy?',ans:tot},{label:'Ile złotych reszty otrzymała?',ans:mon-tot}],
+    hint:`Za bułki: ${k} · ${p} = ${k*p} zł. Razem z napojem: ${k*p} + ${nap} = ${tot} zł. Reszta: ${mon} – ${tot} = <b>${mon-tot}</b> zł (s. 96).`};
+});
+word(1,1,()=>{ // s. 96, zad. 5
+  const h=rnd(130,150), d=rnd(5,25);
+  return {ctx:`Ola ma ${h} cm wzrostu i jest wyższa od Ali o ${d} cm.`,
+    f:[{label:'Kto jest niższy: Ola czy Ala?',sel:['Ola','Ala'],ans:'Ala'},{label:'Ile centymetrów wzrostu ma Ala?',ans:h-d}],
+    hint:`Ola jest <b>wyższa</b>, więc Ala jest niższa. Wzrost Ali: ${h} – ${d} = <b>${h-d}</b> cm (s. 96).`};
+});
+word(1,1,()=>{ // s. 96, zad. 6
+  const a=rnd(2,4), r=rnd(3,5), m=rnd(2,3), S=a+r+m+1;
+  return {ctx:`Mama kupiła jabłka. Asia zjadła ${W(a,'jabłko','jabłka','jabłek')}, Radek zjadł ${W(r,'jabłko','jabłka','jabłek')}, mama zjadła ${W(m,'jabłko','jabłka','jabłek')}, a tata zjadł tylko ostatnie jabłko. Ile jabłek kupiła mama?`,
+    f:[{label:'Ile jabłek kupiła mama?',ans:S}],
+    hint:`Nie zapomnij o ostatnim jabłku taty: ${a} + ${r} + ${m} + 1 = <b>${S}</b> (s. 96).`};
+});
+word(1,1,()=>{ // s. 96, zad. 8: komiksy
+  const t=rnd(4,9), x=rnd(2,4), y=rnd(2,4), F=t+x, O=F-y;
+  return {q:'Ile komiksów ma Oskar?', ctx:`Tomek: „Mam ${W(t,'komiks','komiksy','komiksów')}.” Filip: „Mam o ${x} komiksy więcej niż Tomek.” Oskar: „Mam o ${y} komiksy mniej niż Filip.”`,
+    f:[{label:'Ile komiksów ma Filip?',ans:F},{label:'Ile komiksów ma Oskar?',ans:O}],
+    hint:`Filip: ${t} + ${x} = ${F}. Oskar: ${F} – ${y} = <b>${O}</b> (s. 96).`};
+});
+word(1,2,()=>{ // s. 96, zad. 9: Kuba oszczędza
+  const x=rnd(1,2), y=rnd(2,4), z=rnd(1,3), tot=250, bn=x*50+y*20+z*10, rest=tot-bn;
+  return {ctx:`Kuba co miesiąc odkładał 25 zł. Po dziesięciu miesiącach obliczył, że ma już ${W(x,'banknot','banknoty','banknotów')} 50-złotowe, ${W(y,'banknot','banknoty','banknotów')} 20-złotowe i ${W(z,'banknot','banknoty','banknotów')} 10-złotowe. Pozostałe pieniądze ma w monetach 5-złotowych. Ile monet 5-złotowych ma Kuba?`,
+    f:[{label:'Ile złotych odłożył Kuba przez 10 miesięcy?',ans:tot},{label:'Ile złotych ma w banknotach?',ans:bn},{label:'Ile złotych ma w monetach?',ans:rest},{label:'Ile monet 5-złotowych ma Kuba?',ans:rest/5}],
+    hint:`10 · 25 = ${tot} zł. W banknotach: ${x} · 50 + ${y} · 20 + ${z} · 10 = ${bn} zł. W monetach: ${tot} – ${bn} = ${rest} zł, czyli ${rest} : 5 = <b>${rest/5}</b> monet (s. 96).`};
+});
+word(1,1,()=>{ // s. 95: płot
+  const T=rnd(22,40), d=rnd(8,18), Mk=T-d;
+  return {q:'Wyobraź sobie sytuację z zadania. Możesz zrobić rysunek.', ctx:`Marek z tatą malowali płot. Tata pomalował ${T} m płotu, czyli o ${d} m więcej niż Marek. Ile metrów płotu pomalowali razem?`,
+    f:[{label:'Ile metrów płotu pomalował Marek?',ans:Mk},{label:'Ile metrów płotu pomalowali razem?',ans:T+Mk}],
+    hint:`Tata pomalował o ${d} m <b>więcej</b>, więc Marek o ${d} m mniej: ${T} – ${d} = ${Mk} m. Razem: ${Mk} + ${T} = <b>${T+Mk}</b> m (s. 95).`};
+});
+word(1,1,()=>{ // s. 97, Czy już umiem? 1
+  const I=one([100,110,120,130,140,150]), d=one([30,40,50,60]);
+  return {ctx:`Pani Irena zasadziła ${I} tulipanów. Było to o ${d} tulipanów więcej od pani Krysi. Ile tulipanów zasadziła pani Krysia?`,
+    f:[{label:'Ile tulipanów zasadziła pani Krysia?',ans:I-d}],
+    hint:`Pani Irena zasadziła więcej, więc pani Krysia mniej: ${I} – ${d} = <b>${I-d}</b> (s. 97).`};
+},{book:true});
+word(1,1,()=>{ // s. 97, Czy już umiem? 2
+  const f=rnd(28,44), d=rnd(2,6);
+  return {ctx:`Marysia rozcięła tasiemkę na dwa kawałki. Pierwszy kawałek ma ${f} cm, a drugi jest o ${d} cm krótszy od pierwszego. Jakiej długości tasiemkę przecinała Marysia?`,
+    f:[{label:'Ile centymetrów ma drugi kawałek?',ans:f-d},{label:'Jakiej długości była cała tasiemka (w cm)?',ans:2*f-d}],
+    hint:`Drugi kawałek: ${f} – ${d} = ${f-d} cm. Cała tasiemka: ${f} + ${f-d} = <b>${2*f-d}</b> cm (s. 97).`};
+},{book:true});
+word(1,1,()=>{ // s. 97, Czy już umiem? 3
+  const p=rnd(6,9), r=one([200,220,240,250]), tot=2*p+r;
+  return {ctx:`Pan Wojtek kupił 2 piłki tenisowe po ${p} zł i rakietę za ${r} zł. Ile złotych reszty z 300 zł otrzymał pan Wojtek?`,
+    f:[{label:'Ile złotych zapłacił pan Wojtek za zakupy?',ans:tot},{label:'Ile złotych reszty otrzymał?',ans:300-tot}],
+    hint:`Piłki: 2 · ${p} = ${2*p} zł. Razem z rakietą: ${2*p} + ${r} = ${tot} zł. Reszta: 300 – ${tot} = <b>${300-tot}</b> zł (s. 97).`};
+},{book:true});
+word(1,2,()=>{ // s. 97, zad. 11: wiersz
+  const a=rnd(5,9), m=rnd(30,38);
+  return {q:'Rozwiąż zadanie podane wierszem (w tej wersji prozą).', ctx:`Ola ma teraz ${lat(a)}, a jej mama ${lat(m)}. Rok temu tata miał tyle lat, ile Ola i mama razem miały rok temu. Ile lat ma tata teraz?`,
+    f:[{label:'Ile lat miała Ola rok temu?',ans:a-1},{label:'Ile lat miała mama rok temu?',ans:m-1},{label:'Ile lat ma teraz tata?',ans:a+m-1}],
+    hint:`Rok temu Ola miała ${a-1}, a mama ${m-1}. Tata miał wtedy ${a-1} + ${m-1} = ${a+m-2} lat, a teraz o rok więcej: <b>${a+m-1}</b> (s. 97, zad. 11).`};
+});
+word(1,1,()=>{ // s. 96, zad. 7
+  const p=rnd(4,6), s=rnd(2,3), pt=rnd(4,6), w=p-1, S=p+w+2*s+pt;
+  return {ctx:`W poniedziałek Marysia rozwiązała ${W(p,'krzyżówkę','krzyżówki','krzyżówek')}, a we wtorek o jedną mniej. W środę i czwartek rozwiązała po ${W(s,'krzyżówkę','krzyżówki','krzyżówek')}, a w piątek ${W(pt,'krzyżówkę','krzyżówki','krzyżówek')}. Ile krzyżówek Marysia rozwiązała od poniedziałku do piątku włącznie?`,
+    f:[{label:'Ile krzyżówek rozwiązała we wtorek?',ans:w},{label:'Ile krzyżówek rozwiązała od poniedziałku do piątku?',ans:S}],
+    hint:`Wtorek: ${p} – 1 = ${w}. Środa i czwartek razem: 2 · ${s} = ${2*s}. Razem: ${p} + ${w} + ${2*s} + ${pt} = <b>${S}</b> (s. 96).`};
+});
+
+/* ---------- 2. Tabliczka mnożenia (s. 98–102) ---------- */
+word(2,4,()=>{ // s. 102, Czy już umiem? 1 – osiem iloczynów
+  const ps=pairsUniq(8,2,9).map(p=>Math.random()<.5?p:[p[1],p[0]]);
+  return {q:'Oblicz.', f:ps.map(([a,b])=>({pre:`${a} · ${b} =`,ans:a*b,size:'tiny'})), o:{grid:true},
+    hint:`Z tabliczki mnożenia: ${ps.map(([a,b])=>`${a} · ${b} = <b>${a*b}</b>`).join(', ')}. Jeśli nie pamiętasz wyniku, możesz dodawać albo zmienić kolejność liczb (s. 99).`};
+},{kart:'A', book:true});
+add({lesson:2, kind:'recog', max:1, kart:'A', // znaki < = >
+  render(c,a){
+    const EQ=[[[2,6],[3,4]],[[2,8],[4,4]],[[2,9],[3,6]],[[3,8],[4,6]],[[4,9],[6,6]]];
+    const eq=one(EQ); const eqItem=Math.random()<.5?eq:[eq[1],eq[0]];
+    const mk=()=>{ let x,y; do{ x=pairsUniq(1,2,9)[0]; y=pairsUniq(1,2,9)[0]; }while(x[0]*x[1]===y[0]*y[1]); return x[0]*x[1]<y[0]*y[1]?[x,y]:[y,x]; };
+    const less=mk(), greater=mk().reverse();
+    const prs=[[eqItem,1],[less,0],[greater,2]];
+    this.hint=prs.map(([[x,y]])=>`${x[0]} · ${x[1]} = ${x[0]*x[1]}, ${y[0]} · ${y[1]} = ${y[0]*y[1]}`).join('; ')+'. Najpierw oblicz oba iloczyny, potem porównaj.';
+    ask(c,'Wstaw znak &lt;, = albo &gt;.');
+    renderSort(c,['<','=','>'],shuffle(prs).map(([[x,y],cat])=>({html:`${x[0]} · ${x[1]} &nbsp;?&nbsp; ${y[0]} · ${y[1]}`,cat})),a);
+  }});
+word(2,2,()=>{ // brakujący czynnik
+  const ps=pairsUniq(4,3,9);
+  return {q:'Wpisz brakującą liczbę.', f:ps.map(([a,b])=>Math.random()<.5?{post:`· ${b} = ${a*b}`,ans:a,size:'tiny'}:{pre:`${a} ·`,post:`= ${a*b}`,ans:b,size:'tiny'}), o:{grid:true},
+    hint:`Szukasz liczby, która pomnożona przez drugą daje podany wynik: ${ps.map(([a,b])=>`${a} · ${b} = ${a*b}`).join(', ')}. Pomaga tabliczka mnożenia i dzielenia.`};
+},{kart:'A'});
+add({lesson:2, kind:'recog', max:1, kart:'A', // wynik mnożenia – wybór
+  render(c,a){
+    const x=rnd(6,9), y=rnd(6,9), p=x*y;
+    this.hint=`${x} · ${y} = <b>${p}</b>. Gdy nie pamiętasz, wyjdź od łatwiejszego wyniku: ${x} · ${y-1} = ${x*(y-1)}, a ${x} · ${y} to o ${x} więcej (s. 99).`;
+    ask(c,`Ile jest równy wynik mnożenia <span class="num">${x} · ${y}</span>?`);
+    renderOptions(c, numOpts(p,[p+x,p-x,p+y,p-y,x+y,p+10]), a);
+  }});
+word(2,1,()=>{ // s. 99: o jeden więcej / mniej
+  const a=rnd(3,8), b=rnd(3,9), c2=rnd(4,9), d=rnd(3,9);
+  return {q:'Skorzystaj z wyniku, który znasz.', f:[
+    {label:`Wiem, że ${a} · ${b} = ${a*b}. Ile to ${a+1} · ${b}?`,ans:(a+1)*b},
+    {label:`Wiem, że ${c2} · ${d} = ${c2*d}. Ile to ${c2-1} · ${d}?`,ans:(c2-1)*d}],
+    hint:`${a+1} · ${b} to o ${b} więcej niż ${a} · ${b}: ${a*b} + ${b} = <b>${(a+1)*b}</b>. ${c2-1} · ${d} to o ${d} mniej niż ${c2} · ${d}: ${c2*d} – ${d} = <b>${(c2-1)*d}</b> (s. 99).`};
+},{kart:'A'});
+word(2,1,()=>{ // s. 98: dodawanie jednakowych składników
+  const n1=rnd(3,7), x1=rnd(3,9); let n2,x2; do{ n2=rnd(3,7); x2=rnd(3,9); }while(n2===n1&&x2===x1);
+  const sum=(n,x)=>Array(n).fill(x).join(' + ');
+  return {q:'Zastąp dodawanie mnożeniem.', f:[{pre:`${sum(n1,x1)} =`,post:`· ${x1}`,ans:n1,size:'tiny'},{pre:`${sum(n2,x2)} =`,post:`· ${x2}`,ans:n2,size:'tiny'}],
+    hint:`Liczysz, ile razy powtarza się składnik: w pierwszej sumie ${x1} występuje ${n1} razy, więc ${n1} · ${x1} = ${n1*x1}; w drugiej ${x2} występuje ${n2} razy, więc ${n2} · ${x2} = ${n2*x2} (s. 98).`};
+},{kart:'A'});
+word(2,2,()=>{ // s. 99: jedynka i zero
+  const a=rnd(100,999), b=rnd(100,999), c2=rnd(100,999), d=rnd(1000,9000);
+  return {q:'Oblicz. Zapamiętaj: mnożenie przez 1 i przez 0.', f:[{pre:`${a} · 1 =`,ans:a},{pre:`0 · ${b} =`,ans:0},{pre:`${c2} · 0 =`,ans:0},{pre:`1 · ${fmtN(d)} =`,ans:d}], o:{grid:true},
+    hint:`Mnożenie przez 1 nie zmienia liczby (${a} · 1 = ${a}; 1 · ${fmtN(d)} = ${fmtN(d)}). Mnożenie przez 0 zawsze daje 0 (s. 99).`};
+});
+add({lesson:2, kind:'recog', max:1, kart:'A', // prawda / fałsz
+  render(c,a){
+    const x=rnd(3,9), y=rnd(3,9), n=rnd(11,19);
+    const pool=[
+      {h:`${x} · ${y} = ${y} · ${x}`,c:0},{h:`${x} · ${y} = ${y} · ${x} + 1`,c:1},{h:`${x} · 1 = ${x}`,c:0},{h:`${x} · 0 = ${x}`,c:1},
+      {h:'Mnożenie przez 0 zawsze daje 0',c:0},{h:'Mnożenie przez 1 zmienia liczbę',c:1},{h:`0 · 1000 = 1000`,c:1},
+      {h:`${n} · 5 = 60 + 5, jeśli 12 · 5 = 60`,c:n===13?0:1}
+    ];
+    let it; do{ it=sample(pool,4); }while(!it.some(i=>i.c===0)||!it.some(i=>i.c===1));
+    this.hint='W mnożeniu możesz zmienić kolejność liczb (4 · 6 = 6 · 4). Mnożenie przez 1 nie zmienia liczby, a przez 0 zawsze daje 0 (s. 99). 13 · 5 to 12 · 5 plus jeszcze jedna piątka, czyli 60 + 5.';
+    ask(c,'Zdecyduj, które zdania są prawdziwe, a które fałszywe.');
+    renderSort(c,['Prawda','Fałsz'],it.map(i=>({html:esc(i.h),cat:i.c})),a);
+  }});
+word(2,1,()=>{ // s. 102, Czy już umiem? 2: Jola
+  const n=rnd(3,6);
+  return {ctx:`Jola codziennie wypija ${W(n,'szklankę','szklanki','szklanek')} wody. Ile szklanek wody wypija Jola przez tydzień?`,
+    f:[{label:'Ile szklanek wody Jola wypija przez tydzień?',ans:7*n}],
+    hint:`Tydzień ma 7 dni: 7 · ${n} = <b>${7*n}</b> (s. 102).`};
+},{book:true});
+word(2,2,()=>{ // s. 102, Czy już umiem? 3: Darek
+  const f=rnd(7,9);
+  return {ctx:`Darek kupił komiks, album i figurkę diplodoka. Figurka kosztowała ${f} zł, komiks był od niej o 10 zł droższy, a album był od niej 8 razy droższy. Ile pieniędzy wydał Darek na swoje zakupy?`,
+    f:[{label:'Ile złotych kosztował komiks?',ans:f+10},{label:'Ile złotych kosztował album?',ans:8*f},{label:'Ile złotych wydał Darek na zakupy?',ans:f+f+10+8*f}],
+    hint:`Komiks: ${f} + 10 = ${f+10} zł („o 10 więcej” – dodajemy). Album: 8 · ${f} = ${8*f} zł („8 razy więcej” – mnożymy). Razem: ${f} + ${f+10} + ${8*f} = <b>${2*f+10+8*f}</b> zł (s. 102).`};
+},{book:true});
+word(2,2,()=>{ // s. 102, zad. 12: piknik
+  const z=rnd(5,9), c2=rnd(2,3);
+  return {ctx:`Na piknik zakupiono ${W(z,'zgrzewkę','zgrzewki','zgrzewek')} wody mineralnej. W jednej zgrzewce jest 6 butelek, a jedna butelka kosztuje ${c2} zł.`,
+    f:[{label:'Ile butelek wody zakupiono na piknik?',ans:6*z},{label:'Ile złotych kosztuje jedna zgrzewka?',ans:6*c2},{label:'Ile złotych zapłacono za całą wodę?',ans:6*z*c2}],
+    hint:`Butelek: ${z} · 6 = ${6*z}. Zgrzewka: 6 · ${c2} = ${6*c2} zł. Za wszystko: ${6*z} · ${c2} = <b>${6*z*c2}</b> zł, albo ${z} · ${6*c2} = ${6*z*c2} (s. 102).`};
+});
+word(2,1,()=>{ // s. 102, zad. 13: akwarium
+  const k=rnd(6,8), t=rnd(5,9);
+  return {ctx:`W bloku Tomka ${k} osób ma akwarium z rybkami. ${t} razy więcej osób ma psa. O ile więcej osób ma psa niż akwarium?`,
+    f:[{label:'Ile osób ma psa?',ans:k*t},{label:'O ile więcej osób ma psa niż akwarium?',ans:k*t-k}],
+    hint:`„${t} razy więcej” to mnożenie: ${k} · ${t} = ${k*t}. „O ile więcej” to odejmowanie: ${k*t} – ${k} = <b>${k*t-k}</b> (s. 102).`};
+});
+word(2,1,()=>{ // s. 123, zad. 8: samochody
+  const o=rnd(12,19), t=one([2,3,4]);
+  return {ctx:`Na parkingu stało ${o} samochodów osobowych i ${t} razy tyle ciężarowych. Ile samochodów ciężarowych stało na parkingu?`,
+    f:[{label:'Ile samochodów ciężarowych stało na parkingu?',ans:o*t}],
+    hint:`„${t} razy tyle” to ${t} · ${o} = <b>${o*t}</b> (s. 123, zad. 8).`};
+},{book:true});
+add({lesson:2, kind:'recog', max:1, kart:'B', book:true, // s. 123, zad. 1
+  render(c,a){
+    const x=one([19,23,26,27,29,34,38,39,47]), y=rnd(3,8), p=x*y, tn=Math.floor(x/10), un=x%10;
+    this.hint=`Po kawałku: ${x} · ${y} = ${tn*10} · ${y} + ${un} · ${y} = ${tn*10*y} + ${un*y} = <b>${p}</b> (s. 110, 123).`;
+    ask(c,`Ile jest równy wynik mnożenia <span class="num">${x} · ${y}</span>?`);
+    renderOptions(c, numOpts(p,[Number(`${tn*y}${un*y}`),(tn*y+un*y)*1,p+10*y,p-un,p+x]), a);
+  }});
+add({lesson:2, kind:'recog', max:1, book:true, // s. 123, zad. 2
+  render(c,a){
+    const k=one([3,4]), x=k*rnd(10,33), p=x*k;
+    this.hint=`„${k} razy większa” oznacza mnożenie przez ${k}: ${x} · ${k} = <b>${p}</b>. Liczba ${x/k} byłaby ${k} razy <i>mniejsza</i>, a ${x+k} – tylko o ${k} większa (s. 123, zad. 2).`;
+    ask(c,`Która liczba jest ${k===3?'trzy':'cztery'} razy większa od liczby ${x}?`);
+    renderOptions(c, numOpts(p,[x/k,x+k,p-20,p+20]), a);
+  }});
+add({lesson:2, kind:'recog', max:1, // s. 122: czynnik, iloczyn
+  render(c,a){
+    const x=rnd(3,9); let y; do y=rnd(3,9); while(y===x);
+    this.hint=`W działaniu ${x} · ${y} = ${x*y} liczby ${x} i ${y} to <b>czynniki</b>, a wynik ${x*y} to <b>iloczyn</b> (s. 122).`;
+    ask(c,`Nazwij liczby w mnożeniu <span class="num">${x} · ${y} = ${x*y}</span>.`);
+    renderMatch(c,[{l:nb(x),r:'czynnik'},{l:nb(y),r:'czynnik'},{l:nb(x*y),r:'iloczyn'}],a);
+  }});
+word(2,2,()=>{ // „razy więcej”
+  const k=rnd(6,9), a2=rnd(2,3), b2=rnd(2,4);
+  return {ctx:`Kuba ma ${W(k,'zeszyt','zeszyty','zeszytów')}. Ola ma ${a2} razy więcej zeszytów niż Kuba, a Ela ma ${b2} razy więcej zeszytów niż Kuba. Ile zeszytów mają razem?`,
+    f:[{label:'Ile zeszytów ma Ola?',ans:k*a2},{label:'Ile zeszytów ma Ela?',ans:k*b2},{label:'Ile zeszytów mają wszyscy razem?',ans:k+k*a2+k*b2}],
+    hint:`Ola: ${a2} · ${k} = ${k*a2}. Ela: ${b2} · ${k} = ${k*b2}. Razem: ${k} + ${k*a2} + ${k*b2} = <b>${k+k*a2+k*b2}</b> (s. 98).`};
+});
+
+/* ---------- 3. Tabliczka dzielenia (s. 103–108) ---------- */
+word(3,2,()=>{ // s. 106, zad. 2
+  const mk=()=>{ let a,b; do{ a=rnd(4,9); b=rnd(6,12); }while(a===b); return [a,b]; };
+  const e1=mk(); let e2; do e2=mk(); while(e2[0]===e1[0]&&e2[1]===e1[1]);
+  const f=[];
+  [e1,e2].forEach(([a,b])=>{ const p=a*b; f.push({pre:`${a} · ${b} = ${p},  więc ${p} : ${a} =`,ans:b,size:'tiny'},{cont:true,pre:`a ${p} : ${b} =`,ans:a,size:'tiny'}); });
+  return {q:'Do każdego mnożenia zapisz dwa dzielenia.', f,
+    hint:`Z jednego mnożenia powstają dwa dzielenia: ${[e1,e2].map(([a,b])=>`${a} · ${b} = ${a*b}, więc ${a*b} : ${a} = ${b}, a ${a*b} : ${b} = ${a}`).join('; ')} (s. 103, 106).`};
+});
+add({lesson:3, kind:'recog', max:1, // s. 103: QUIZ
+  render(c,a){
+    const d=one([6,7,8,9]), k=rnd(3,9), p=d*k, wrong=new Set();
+    while(wrong.size<3){ const n=rnd(20,80); if(n%d!==0) wrong.add(n); }
+    this.hint=`Liczbę można podzielić przez ${d} przy użyciu tabliczki mnożenia, jeśli jest w niej wynikiem mnożenia przez ${d}: ${d} · ${k} = <b>${p}</b>, więc ${p} : ${d} = ${k} (s. 103).`;
+    ask(c,`Którą z liczb można podzielić przez ${d} przy użyciu tabliczki mnożenia?`);
+    renderOptions(c, opts(String(p),...[...wrong].map(String)), a);
+  }});
+add({lesson:3, kind:'recog', max:1, // s. 104: zero i jedynka w dzieleniu
+  render(c,a){
+    const n=rnd(2,9), m=rnd(10,99);
+    const pool=[
+      {h:`0 : ${n} = 0`,c:0},{h:`${n} : ${n} = 1`,c:0},{h:`${m} : 1 = ${m}`,c:0},{h:'Przez 0 można dzielić',c:1},
+      {h:`${n} : ${n} = 0`,c:1},{h:`${m} : 1 = 1`,c:1},{h:`0 : ${m} = ${m}`,c:1},{h:`${n} : 0 = 0`,c:1},{h:'Zero podzielone przez dowolną liczbę różną od zera daje zero',c:0}
+    ];
+    let it; do{ it=sample(pool,4); }while(!it.some(i=>i.c===0)||!it.some(i=>i.c===1));
+    this.hint=`Zero podzielone przez liczbę różną od zera daje zero. Liczba podzielona przez samą siebie daje 1. Dzielenie przez 1 nie zmienia liczby. Przez 0 nie wolno dzielić! (s. 104).`;
+    ask(c,'Zdecyduj, które zdania są prawdziwe, a które fałszywe.');
+    renderSort(c,['Prawda','Fałsz'],it.map(i=>({html:esc(i.h),cat:i.c})),a);
+  }});
+word(3,1,()=>{ // s. 104: dwa pytania, to samo działanie
+  const k=rnd(3,6), m=rnd(3,6), N=k*m;
+  return {q:'To samo dzielenie pozwala odpowiedzieć na różne pytania.', f:[
+    {label:`Dzielimy ${N} jabłek po równo na ${k} talerzy. Ile jabłek będzie na każdym talerzu?`,ans:m},
+    {label:`Dzielimy ${N} jabłek na porcje po ${m} sztuk. Ile porcji otrzymamy?`,ans:k}],
+    hint:`${N} : ${k} = ${m} jabłek na talerzu, a ${N} : ${m} = ${k} porcji (s. 104).`};
+});
+word(3,1,()=>{ // s. 105: Antoni i Leon
+  const k=rnd(2,6), L=rnd(4,9), n=k*L;
+  return {ctx:`Antoni ma ${W(n,'figurkę','figurki','figurek')}, a Leon ma ich ${k} razy mniej. Ile figurek ma Leon?`,
+    f:[{label:'Ile figurek ma Leon?',ans:L},{pre:`Sprawdzenie: ${k} ·`,post:`= ${n}`,ans:L,size:'tiny'}],
+    hint:`„${k} razy mniej” to dzielenie: ${n} : ${k} = <b>${L}</b>. Sprawdzenie: Antoni ma ${k} razy więcej, czyli ${k} · ${L} = ${n} (s. 105).`};
+});
+add({lesson:3, kind:'recog', max:1, // s. 105: QUIZ – razy mniej / razy więcej
+  render(c,a){
+    const k=rnd(2,6), q=rnd(3,9), n=k*q;
+    if(Math.random()<.5){
+      this.hint=`„${k} razy mniej” to dzielenie: ${n} : ${k} = <b>${q}</b>. Mnożenie dałoby ${n*k}, a odejmowanie ${n-k} (s. 105).`;
+      ask(c,`Janek ma ${lat(n)}, a jego brat ma ${k} razy mniej. Ile lat ma brat Janka?`);
+      renderOptions(c, numOpts(q,[n*k,n-k,n+k,q+1]), a);
+    } else {
+      this.hint=`„Ile razy” pytamy dzieleniem: ${n} : ${q} = <b>${k}</b>. Różnica ${n-q} odpowiada na pytanie „o ile”, a ${n+q} to suma (s. 105).`;
+      ask(c,`Ania ma ${lat(n)}, a jej siostra ma ${lat(q)}. Ile razy Ania jest starsza od swojej siostry?`);
+      renderOptions(c, numOpts(k,[n-q,n+q,n*q,k+1]), a);
+    }
+  }});
+word(3,2,()=>{ // s. 108, Czy już umiem? 3
+  const o=rnd(6,9), t=rnd(4,9), K=o*t;
+  return {ctx:`Krysia przeczytała już ${W(K,'stronę','strony','stron')} „Akademii Pana Kleksa”, a Ola tylko ${W(o,'stronę','strony','stron')}.`,
+    f:[{label:'Ile razy więcej stron przeczytała Krysia?',ans:t},{label:'Ile razy mniej stron przeczytała Ola?',ans:t},{label:'O ile więcej stron przeczytała Krysia?',ans:K-o}],
+    hint:`„Ile razy” to dzielenie: ${K} : ${o} = ${t} (Krysia przeczytała ${t} razy więcej, Ola ${t} razy mniej). „O ile” to odejmowanie: ${K} – ${o} = <b>${K-o}</b> (s. 108).`};
+},{book:true});
+word(3,2,()=>{ // s. 107, zad. 8: sznurek
+  let n,d; do{ n=rnd(3,9); d=rnd(3,9); }while(n===d); const L=n*d;
+  return {q:'Zapisz działanie i odpowiedz na pytania.', ctx:`Sznurek o długości ${L} m.`,
+    f:[{label:`Dzielimy sznurek na kawałki o długości ${d} m. Ile powstanie kawałków?`,ans:n},
+       {label:`Dzielimy sznurek na ${n} równych kawałków. Jaką długość (w m) ma jeden kawałek?`,ans:d},
+       {label:`Jeden kawałek ma ${L} m, a drugi jest ${d} razy krótszy. Ile metrów ma drugi kawałek?`,ans:n}],
+    hint:`Podział na kawałki o danej długości: ${L} : ${d} = ${n} kawałków. Podział na ${n} równych części: ${L} : ${n} = ${d} m. „${d} razy krótszy”: ${L} : ${d} = <b>${n}</b> m (s. 107, zad. 8).`};
+});
+word(3,2,()=>{ // s. 124, zad. 16: klocki
+  const k=rnd(4,7), p=rnd(6,9), r=rnd(2,5), n=k*p+r;
+  return {ctx:`Kuba miał ${W(n,'klocek','klocki','klocków')}. Gdy zbudował ${k} takich samych domków, zostało mu ${W(r,'klocek','klocki','klocków')}. Z ilu klocków składał się jeden domek?`,
+    f:[{label:'Ile klocków Kuba zużył na wszystkie domki?',ans:n-r},{label:'Z ilu klocków składał się jeden domek?',ans:p}],
+    hint:`Na domki poszło ${n} – ${r} = ${n-r} klocków. Jeden domek: ${n-r} : ${k} = <b>${p}</b> (s. 124, zad. 16).`};
+},{book:true});
+word(3,1,()=>{ // s. 106, zad. 3: tygodnie
+  const ws=sample([2,3,4,5,6,7,8,9,10,12],3).sort((a,b)=>a-b);
+  return {q:'Ile to tygodni?', f:ws.map(w=>({pre:`${7*w} dni =`,post:'tygodni',ans:w,size:'tiny'})),
+    hint:`Tydzień ma 7 dni, więc dzielimy przez 7: ${ws.map(w=>`${7*w} : 7 = ${w}`).join(', ')} (s. 106).`};
+});
+add({lesson:3, kind:'recog', max:1, // s. 106: dzielna, dzielnik, iloraz
+  render(c,a){
+    const d=rnd(3,9), q=rnd(3,9), n=d*q;
+    this.hint=`W działaniu ${n} : ${d} = ${q} liczba ${n} to <b>dzielna</b> (dzielimy ją), ${d} to <b>dzielnik</b> (przez nią dzielimy), a ${q} to <b>iloraz</b>, czyli wynik dzielenia (s. 106).`;
+    ask(c,`Nazwij liczby w dzieleniu <span class="num">${n} : ${d} = ${q}</span>.`);
+    renderMatch(c,[{l:nb(n),r:'dzielna'},{l:nb(d),r:'dzielnik'},{l:nb(q),r:'iloraz'}],a);
+  }});
+word(3,4,()=>{ // s. 108, Czy już umiem? 1
+  const ps=sample([[3,6],[5,6],[7,7],[4,6],[7,8],[8,9],[9,6],[7,9],[3,9],[4,7],[8,8],[6,9]],8).map(([d,q])=>[d,q,d*q]);
+  return {q:'Oblicz.', f:ps.map(([d,q,n])=>({pre:`${n} : ${d} =`,ans:q,size:'tiny'})), o:{grid:true},
+    hint:`Pomaga tabliczka mnożenia: ${ps.map(([d,q,n])=>`${n} : ${d} = <b>${q}</b>, bo ${q} · ${d} = ${n}`).join('; ')}. Wynik dzielenia możesz sprawdzić mnożeniem (s. 103).`};
+},{book:true});
+word(3,2,()=>{ // s. 108, Czy już umiem? 2: tasiemka
+  const n=rnd(6,9), e=rnd(2,3), o=rnd(8,15), T=o+n*e;
+  return {ctx:`Krawcowa kupiła ${T} m tasiemki, aby obszyć nią obrus i ${n} takich samych serwetek. Do obszycia obrusa krawcowa zużyła ${o} m tasiemki. Pozostałą część tasiemki zużyła do obszycia wszystkich serwetek. Ile metrów tasiemki krawcowa zużyła do obszycia jednej serwetki?`,
+    f:[{label:'Ile metrów tasiemki zużyła na wszystkie serwetki?',ans:T-o},{label:'Ile metrów tasiemki zużyła na jedną serwetkę?',ans:e}],
+    hint:`Na serwetki: ${T} – ${o} = ${T-o} m. Na jedną: ${T-o} : ${n} = <b>${e}</b> m (s. 108).`};
+},{book:true});
+word(3,2,()=>{ // s. 107, zad. 11: Klara, Zosia, Ania
+  const n=rnd(3,9), q=rnd(4,9), K=n*q, r=rnd(5,9);
+  return {ctx:`Klara, Zosia i Ania oszczędzają na prezent dla babci. Klara zebrała ${K} zł, Zosia zebrała o ${r} zł mniej, a Ania zebrała ${n} razy mniej niż Klara.`,
+    f:[{label:'Ile złotych zebrała Zosia?',ans:K-r},{label:'Ile złotych zebrała Ania?',ans:q},{label:'Ile złotych mają razem dziewczynki?',ans:K+K-r+q}],
+    hint:`Zosia: ${K} – ${r} = ${K-r} zł („o ${r} mniej” – odejmujemy). Ania: ${K} : ${n} = ${q} zł („${n} razy mniej” – dzielimy). Razem: ${K} + ${K-r} + ${q} = <b>${2*K-r+q}</b> zł (s. 107).`};
+});
+word(3,1,()=>{ // s. 107, zad. 10: dziadek
+  const t=rnd(6,9), k=rnd(6,9), D=t*k;
+  return {ctx:`Tomek mówi: „Mam ${lat(t)}.” Dziadek mówi: „A ja jestem o ${D-t} lat starszy.” Ile razy dziadek jest starszy od Tomka?`,
+    f:[{label:'Ile lat ma dziadek?',ans:D},{label:'Ile razy dziadek jest starszy od Tomka?',ans:k}],
+    hint:`Dziadek: ${t} + ${D-t} = ${D} lat. „Ile razy starszy”: ${D} : ${t} = <b>${k}</b> (s. 107, zad. 10).`};
+});
+add({lesson:3, kind:'recog', max:1, // s. 103: sprawdzanie dzielenia
+  render(c,a){
+    const d=rnd(3,9), q=rnd(3,9), n=d*q;
+    this.hint=`Wynik dzielenia sprawdzamy mnożeniem: iloraz razy dzielnik daje dzielną. ${n} : ${d} = ${q}, więc sprawdzenie: <b>${q} · ${d} = ${n}</b> (s. 103).`;
+    ask(c,`Które działanie jest sprawdzeniem dzielenia <span class="num">${n} : ${d} = ${q}</span>?`);
+    renderOptions(c, opts(`${q} · ${d} = ${n}`,`${n} · ${d} = ${q}`,`${q} + ${d} = ${q+d}`,`${n} – ${d} = ${n-d}`), a, true);
+  }});
+add({lesson:3, kind:'recog', max:1, // wiele rozkładów
+  render(c,a){
+    const n=one([12,16,18,24,30,36]);
+    const all=[]; for(let x=2;x<=9;x++) if(n%x===0&&n/x<=12&&n/x>=2) all.push(`${x} · ${n/x}`);
+    const good=all.slice(0,3);
+    const bads=[]; for(let x=2;x<=9&&bads.length<5;x++){ const y=rnd(2,9); if(x*y!==n) bads.push(`${x} · ${y}`); }
+    this.hint=`Szukasz działań, których wynikiem jest ${n}: ${all.join(', ')}. Pomaga tabliczka mnożenia i dzielenia (s. 98–103).`;
+    ask(c,`Zaznacz wszystkie działania, których wynikiem jest <span class="num">${n}</span>.`);
+    renderMulti(c, shuffle([...good.map(t=>({text:t,correct:true})), ...bads.slice(0,3).map(t=>({text:t,correct:false}))]), a);
+  }});
+let pairGrp=0;
+word(2,2,()=>{ // s. 123, zad. 10
+  const two=one([[36,['4,9','6,6']],[16,['2,8','4,4']],[24,['3,8','4,6']],[18,['2,9','3,6']],[12,['2,6','3,4']]]);
+  const one1=one([[42,['6,7']],[81,['9,9']],[72,['8,9']],[63,['7,9']],[56,['7,8']],[45,['5,9']],[35,['5,7']]]);
+  const g1=++pairGrp, g2=++pairGrp, g3=++pairGrp;
+  const f=[
+    {pre:`${two[0]} =`,pair:two[1],grp:g1},{cont:true,pre:'albo',pair:two[1],grp:g1},
+    {pre:`${one1[0]} =`,pair:one1[1],grp:g2}
+  ];
+  return {q:'Podaj działanie z tabliczki mnożenia, które daje podany wynik. Jeśli są dwie możliwości, podaj obie.', f,
+    hint:`${two[0]} = ${two[1].map(k=>k.split(',').join(' · ')).join(' = ')}; ${one1[0]} = ${one1[1][0].split(',').join(' · ')} (s. 123, zad. 10). Zamiana kolejności czynników (np. 4 · 9 i 9 · 4) to to samo działanie.`};
+},{book:true});
+
+/* ---------- 4. Sprytne mnożenie (s. 109–113, 120–121) ---------- */
+word(4,2,()=>{ // poziom A
+  const items=Array.from({length:4},()=>({a:rnd(11,999)*one([1,1,10,100,1000]), p:one([10,100,1000])}));
+  return {q:'Wykonaj mnożenie.', f:items.map(({a,p})=>({pre:`${fmtN(a)} · ${fmtN(p)} =`,ans:a*p,size:'wide'})), o:{grid:true},
+    hint:`Aby pomnożyć liczbę przez 10, 100, 1000, dopisz do niej na końcu tyle zer: ${items.map(({a,p})=>`${fmtN(a)} · ${fmtN(p)} = <b>${fmtN(a*p)}</b>`).join('; ')} (s. 109).`};
+});
+word(4,2,()=>{ // poziom B
+  const items=Array.from({length:4},()=>({x:rnd(2,9)*10**rnd(1,3), y:rnd(2,9)*10**rnd(1,3)}));
+  return {q:'Wykonaj mnożenie.', f:items.map(({x,y})=>({pre:`${fmtN(x)} · ${fmtN(y)} =`,ans:x*y,size:'wide'})), o:{grid:true},
+    hint:`Pomnóż liczby bez zer, a potem dopisz zera z obu liczb: ${items.map(({x,y})=>{ const [a,za]=zs(x),[b,zb]=zs(y); return `${fmtN(x)} · ${fmtN(y)}: ${a} · ${b} = ${a*b}, dopisz ${za+zb} zer = <b>${fmtN(x*y)}</b>`; }).join('; ')} (s. 110).`};
+});
+word(4,2,()=>{ // poziom C
+  const items=Array.from({length:3},()=>{ const e=one([2,4,6,8]), c2=rnd(3,9), arr=shuffle([e,5,c2]); return {arr,e,c2}; });
+  return {q:'Oblicz. Zmień kolejność liczb, żeby rachunki były jak najprostsze.', f:items.map(({arr})=>({pre:`${arr.join(' · ')} =`,ans:arr[0]*arr[1]*arr[2],size:'short'})),
+    hint:`Liczby możesz mnożyć w dowolnej kolejności. Najpierw pomnóż te, które dają okrągły wynik: ${items.map(({e,c2})=>`${e} · 5 = ${e*5}, potem ${e*5} · ${c2} = <b>${e*5*c2}</b>`).join('; ')} (s. 110).`};
+});
+word(4,2,()=>{ // poziom D: po kawałku z dodawaniem
+  const a=rnd(3,9), t=rnd(1,3), u=rnd(2,9), b=10*t+u;
+  return {q:'Pomnóż „po kawałku”.', f:[
+    {pre:`${a} · ${b} = ${a} · ${10*t} + ${a} · ${u} =`,post:'+',ans:a*10*t,size:'tiny'},
+    {cont:true,post:'=',ans:a*u,size:'tiny'},
+    {cont:true,ans:a*b,size:'tiny'}],
+    hint:`Rozbij ${b} na ${10*t} i ${u}: ${a} · ${b} = ${a} · ${10*t} + ${a} · ${u} = ${a*10*t} + ${a*u} = <b>${a*b}</b> (s. 110).`};
+},{kart:'B'});
+word(4,2,()=>{ // poziom D: cztery iloczyny
+  const items=pairsUniq(4,3,9).map(([a,b])=>({a,b:b*one([2,3,4])+rnd(1,3)})).map(({a,b})=>Math.random()<.5?[a,b]:[b,a]);
+  return {q:'Pomnóż „po kawałku”.', f:items.map(([x,y])=>({pre:`${x} · ${y} =`,ans:x*y,size:'tiny'})), o:{grid:true},
+    hint:`Rozbij większą liczbę na dziesiątki i jedności: ${items.map(([x,y])=>{ const s=Math.max(x,y), m=Math.min(x,y), t=Math.floor(s/10)*10, u=s%10; return `${x} · ${y} = ${m} · ${t} + ${m} · ${u} = ${m*t} + ${m*u} = <b>${x*y}</b>`; }).join('; ')} (s. 110).`};
+},{kart:'B'});
+word(4,2,()=>{ // z odejmowaniem
+  const a=rnd(3,9), s=rnd(1,3), T=10*rnd(2,4), b=T-s;
+  return {q:'Pomnóż „po kawałku”, korzystając z odejmowania.', f:[
+    {pre:`${a} · ${b} = ${a} · (${T} – ${s}) = ${a} · ${T} – ${a} · ${s} =`,post:'–',ans:a*T,size:'tiny'},
+    {cont:true,post:'=',ans:a*s,size:'tiny'},
+    {cont:true,ans:a*b,size:'tiny'}],
+    hint:`${b} to o ${s} mniej niż ${T}, więc ${b} razy ${a} to o ${s} razy ${a} mniej niż ${T} razy ${a}: ${a*T} – ${a*s} = <b>${a*b}</b> (s. 112, zad. 9).`};
+},{kart:'B'});
+add({lesson:4, kind:'recog', max:1, kart:'B', // który zapis pomoże
+  render(c,a){
+    const x=rnd(3,9), t=rnd(1,3), u=rnd(2,9), y=10*t+u;
+    this.hint=`Liczbę ${y} rozkładamy na ${10*t} i ${u}. Każdy „kawałek” mnożymy przez ${x} i dodajemy wyniki: <b>${x} · ${y} = ${x} · ${10*t} + ${x} · ${u}</b> (s. 110).`;
+    ask(c,`Która równość pomoże wykonać mnożenie <span class="num">${x} · ${y}</span>?`);
+    renderOptions(c, opts(`${x} · ${y} = ${x} · ${10*t} + ${x} · ${u}`,`${x} · ${y} = ${x} · ${10*t} + ${u}`,`${x} · ${y} = ${x} + ${10*t} + ${u}`,`${x} · ${y} = ${x} · ${10*t} · ${x} · ${u}`), a, true);
+  }});
+word(4,2,()=>{ // Mistrz: trzycyfrowe
+  const xs=[]; while(xs.length<3){ const x=100*rnd(1,2)+10*rnd(0,5)+rnd(1,9); if(!xs.includes(x)) xs.push(x); }
+  const items=xs.map(x=>({x,a:rnd(2,6)})).map(o=>Math.random()<.5?[o.x,o.a]:[o.a,o.x]);
+  return {q:'Pomnóż „po kawałku”.', f:items.map(([p,q])=>({pre:`${p} · ${q} =`,ans:p*q,size:'short'})),
+    hint:`Rozbij liczbę trzycyfrową na setki, dziesiątki i jedności: ${items.map(([p,q])=>{ const x=Math.max(p,q), m=Math.min(p,q); return `${p} · ${q} = ${100*Math.floor(x/100)*m} + ${(Math.floor(x/10)%10)*10*m} + ${(x%10)*m} = <b>${p*q}</b>`; }).join('; ')} (s. 111).`};
+},{kart:'B'});
+word(4,2,()=>{ // s. 112, zad. 9: odejmowanie
+  const bs=sample([19,28,29,39,48,49,59,198,298,398,299],4);
+  const items=bs.map(b=>({b,a:rnd(3,7)})).map(o=>Math.random()<.5?[o.a,o.b]:[o.b,o.a]);
+  return {q:'Oblicz sposobem „po kawałku” z odejmowaniem.', f:items.map(([x,y])=>({pre:`${x} · ${y} =`,ans:x*y,size:'short'})), o:{grid:true},
+    hint:`Zaokrąglij większą liczbę w górę i odejmij nadmiar: ${items.map(([x,y])=>{ const s=Math.max(x,y), m=Math.min(x,y), R=s<100?Math.ceil(s/10)*10:Math.ceil(s/100)*100; return `${x} · ${y} = ${m} · ${R} – ${m} · ${R-s} = ${m*R} – ${m*(R-s)} = <b>${x*y}</b>`; }).join('; ')} (s. 112).`};
+},{kart:'B'});
+word(4,2,()=>{ // s. 113, Czy już umiem? 3
+  const a=rnd(6,9), p=rnd(14,18), b=rnd(10,14), q=rnd(5,7), s=rnd(3,8);
+  return {ctx:`Na zabawę klasową kupiono ${W(a,'paczkę','paczki','paczek')} ciastek po ${p} zł, ${W(b,'karton','kartony','kartonów')} soku po ${q} zł i opakowanie serwetek za ${s} zł. Ile zapłacono za ciastka, ile za sok, a ile za wszystkie zakupy?`,
+    f:[{label:'Ile złotych zapłacono za ciastka?',ans:a*p},{label:'Ile złotych zapłacono za sok?',ans:b*q},{label:'Ile złotych zapłacono za wszystkie zakupy?',ans:a*p+b*q+s}],
+    hint:`Ciastka: ${a} · ${p} = ${a*p} zł (po kawałku: ${a} · ${10} + ${a} · ${p-10}). Sok: ${b} · ${q} = ${b*q} zł. Razem: ${a*p} + ${b*q} + ${s} = <b>${a*p+b*q+s}</b> zł (s. 113).`};
+},{book:true, kart:'B'});
+add({lesson:4, kind:'recog', max:1, book:true, // s. 123, zad. 5
+  render(c,a){
+    const x=one([283,2830,45,712,36]), k=rnd(1,4), p=10**k, y=x*p;
+    this.hint=`Z ${fmtN(x)} zrobiło się ${fmtN(y)}, czyli dopisano ${k} ${form(k,'zero','zera','zer')}. Pomnożono więc przez ${fmtN(p)} (s. 109, 123).`;
+    ask(c,`Przez jaką liczbę trzeba pomnożyć ${fmtN(x)}, aby otrzymać ${fmtN(y)}?`);
+    renderOptions(c, opts(fmtN(p),...[10,100,1000,10000].filter(v=>v!==p).sort(()=>Math.random()-.5).slice(0,3).map(fmtN)), a);
+  }});
+word(4,2,()=>{ // s. 111, zad. 1
+  const a=rnd(11,99), k=rnd(2,3), x1=rnd(11,99), x2=rnd(111,999), x3=rnd(11,99), k2=rnd(2,3);
+  const f=[
+    {pre:`${a} ·`,post:`= ${fmtN(a*10**k)}`,ans:10**k,size:'short'},
+    {pre:`${a*10} ·`,post:`= ${fmtN(a*100)}`,ans:10,size:'short'},
+    {pre:`${10**k2} ·`,post:`= ${fmtN(x2*10**k2)}`,ans:x2,size:'short'},
+    {post:`· ${10**k} = ${fmtN(x3*10**k)}`,ans:x3,size:'short'}];
+  return {q:'Przepisz działanie. Zastąp okienko odpowiednią liczbą.', f, o:{grid:true},
+    hint:`Sprawdź, ile zer dopisano: ${a} · <b>${10**k}</b> = ${fmtN(a*10**k)}; ${a*10} · <b>10</b> = ${fmtN(a*100)}; ${10**k2} · <b>${x2}</b> = ${fmtN(x2*10**k2)}; <b>${x3}</b> · ${10**k} = ${fmtN(x3*10**k)} (s. 111).`};
+});
+word(4,2,()=>{ // s. 111, zad. 3: godziny na minuty
+  const [h1,h2]=sample([2,3,4,5,6,8,10,12],2), h3=rnd(2,15), m3=one([15,30,45]), d=one([1,2]);
+  const f=[{pre:`${W(h1,'godzina','godziny','godzin')} =`,post:'min',ans:60*h1,size:'tiny'},{pre:`${W(h2,'godzina','godziny','godzin')} =`,post:'min',ans:60*h2,size:'tiny'},
+    {pre:`${h3} godz. ${m3} min =`,post:'min',ans:60*h3+m3,size:'tiny'},{pre:d===1?'1 doba =':'2 doby =',post:'min',ans:1440*d,size:'tiny'}];
+  return {q:'Ile to minut?', f, o:{grid:true},
+    hint:`1 godzina ma 60 minut: ${h1} · 60 = ${60*h1}; ${h2} · 60 = ${60*h2}; ${h3} · 60 + ${m3} = ${60*h3+m3}. Doba ma 24 godziny, czyli 24 · 60 = 1440 minut, a ${d===1?'1 doba':'2 doby'} to ${fmtN(1440*d)} minut (s. 111).`};
+});
+word(4,1,()=>{ // s. 112, zad. 5
+  const p=rnd(4,8), w=one([12,14,16]);
+  return {ctx:`Do ogólnopolskiego finału pewnego konkursu zakwalifikowano po ${p} osób z każdego z ${w} województw. Ilu jest finalistów?`,
+    f:[{label:'Ilu jest finalistów?',ans:p*w}],
+    hint:`${p} · ${w} = ${p} · 10 + ${p} · ${w-10} = ${p*10} + ${p*(w-10)} = <b>${p*w}</b> (s. 112, zad. 5).`};
+});
+add({lesson:4, kind:'recog', max:1, // s. 112, zad. 6
+  render(c,a){
+    const small=Math.random()<.4, x=small?rnd(5,9):rnd(20,60), big=Math.random()<.5, k=big?100:10, p=big?1000:100;
+    const A=k*x, B=x+p, first=A>B;
+    this.hint=`${k} razy więcej od ${x} zł to ${k} · ${x} = ${A} zł. O ${p} zł więcej od ${x} zł to ${x} + ${p} = ${B} zł. Większa jest ${first?'pierwsza':'druga'} kwota (s. 112, zad. 6).`;
+    ask(c,'Która kwota jest większa?');
+    renderOptions(c, shuffle([{text:`${k} razy więcej od ${x} zł`,correct:first},{text:`o ${fmtN(p)} zł więcej od ${x} zł`,correct:!first}]), a, true);
+  }});
+word(4,1,()=>{ // s. 112, zad. 7
+  const d=one([400,600,800,900]), k=one([200,500,1000]);
+  return {ctx:`Najbardziej oddalone od siebie miejscowości w Polsce to Świnoujście i Wołosate. Odległość między nimi wynosi około ${d} km. Z Ziemi na Księżyc jest ${k} razy dalej. Ile wynosi odległość między Ziemią a Księżycem?`,
+    f:[{label:'Ile kilometrów jest z Ziemi na Księżyc?',ans:d*k,size:'wide'}],
+    hint:(()=>{ const [a,za]=zs(d),[b,zb]=zs(k); return `Pomnóż liczby bez zer: ${a} · ${b} = ${a*b}, potem dopisz ${za+zb} zer: <b>${fmtN(d*k)}</b> km (s. 112, zad. 7).`; })()};
+});
+word(4,2,()=>{ // s. 112, zad. 8
+  const n1=one([12,15,18,24]), n2=one([21,23,25,27]), n3=rnd(5,8), p3=34;
+  return {ctx:`Do świetlicy zakupiono ${W(n1,'temperówkę','temperówki','temperówek')} po 4 zł, ${W(n2,'paczkę','paczki','paczek')} flamastrów po 6 zł i ${W(n3,'opakowanie','opakowania','opakowań')} farb po ${p3} zł. Ile zapłacono za temperówki, ile za flamastry, a ile za farby?`,
+    f:[{label:'Ile złotych zapłacono za temperówki?',ans:4*n1},{label:'Ile złotych zapłacono za flamastry?',ans:6*n2},{label:'Ile złotych zapłacono za farby?',ans:p3*n3}],
+    hint:`Temperówki: ${n1} · 4 = ${4*n1}. Flamastry: ${n2} · 6 = ${6*n2}. Farby: ${n3} · ${p3} = ${n3} · 30 + ${n3} · 4 = ${30*n3} + ${4*n3} = <b>${p3*n3}</b> (s. 112).`};
+});
+word(4,2,()=>{ // s. 112, zad. 10
+  const K=one([45,54,63,72,81]), o=K/3, r=7*K;
+  return {ctx:`Janek kupił kask do jazdy na rolkach za ${K} zł, zestaw ochraniaczy, który był trzy razy tańszy od kasku, oraz rolki. Za rolki zapłacił 7 razy więcej niż za kask. O ile złotych droższe były rolki niż ochraniacze?`,
+    f:[{label:'Ile złotych kosztowały ochraniacze?',ans:o},{label:'Ile złotych kosztowały rolki?',ans:r},{label:'O ile złotych rolki były droższe niż ochraniacze?',ans:r-o}],
+    hint:`Ochraniacze: ${K} : 3 = ${o} zł („3 razy tańszy” – dzielimy). Rolki: 7 · ${K} = ${r} zł. Różnica: ${r} – ${o} = <b>${r-o}</b> zł (s. 112, zad. 10).`};
+});
+word(4,2,()=>{ // s. 113, Czy już umiem? 1
+  const x=rnd(2,9)*100, y=rnd(2,9)*10, a=rnd(11,19), b=rnd(6,9), c2=rnd(31,59), d=rnd(6,9);
+  return {q:'Oblicz.', f:[{pre:`${x} · ${y} =`,ans:x*y,size:'short'},{pre:`${a} · ${b} =`,ans:a*b,size:'short'},{pre:`${c2} · ${d} =`,ans:c2*d,size:'short'}],
+    hint:`${x} · ${y}: ${x/100} · ${y/10} = ${x*y/1000}, dopisz 3 zera = <b>${fmtN(x*y)}</b>. ${a} · ${b} = ${10*b} + ${(a-10)*b} = <b>${a*b}</b>. ${c2} · ${d} = ${Math.floor(c2/10)*10*d} + ${(c2%10)*d} = <b>${c2*d}</b> (s. 113).`};
+},{book:true});
+word(4,2,()=>{ // s. 113: gimnastyka
+  const m=rnd(12,18);
+  return {ctx:`Kuba gimnastykuje się ${m} minut dziennie. Ile czasu tygodniowo poświęca na gimnastykę? Czy to więcej niż dwie godziny?`,
+    f:[{label:'Ile minut tygodniowo Kuba poświęca na gimnastykę?',ans:7*m},{label:'Ile minut mają dwie godziny?',ans:120},{label:'Czy to więcej niż dwie godziny?',sel:['Tak','Nie'],ans:7*m>120?'Tak':'Nie'}],
+    hint:`7 · ${m} = ${7*m} minut. Dwie godziny to 2 · 60 = 120 minut. ${7*m} ${7*m>120?'>':'<'} 120, więc odpowiedź to <b>${7*m>120?'tak':'nie'}</b> (s. 113).`};
+});
+word(4,2,()=>{ // s. 111, zad. 2: zeszyty
+  const u=rnd(18,25), z=rnd(6,8), c2=rnd(3,6);
+  return {ctx:`Dla ${u} uczniów kupiono po ${z} zeszytów. Jeden zeszyt kosztował ${c2} zł. Ile kosztowały wszystkie zeszyty?`,
+    f:[{label:'Ile zeszytów kupiono?',ans:u*z},{label:'Ile złotych kosztowały wszystkie zeszyty?',ans:u*z*c2}],
+    hint:`Zeszytów: ${u} · ${z} = ${u*z}. Koszt: ${u*z} · ${c2} = <b>${u*z*c2}</b> zł (s. 111, zad. 2).`};
+});
+word(4,1,()=>{ // s. 124, zad. 17
+  const w=rnd(5,9), L=one([25,30,40]), lok=rnd(12,20);
+  return {ctx:`Wagon pociągu ma długość ${L} m, a lokomotywa ma ${lok} m. Jaką długość ma pociąg składający się z ${w} wagonów i lokomotywy?`,
+    f:[{label:'Ile metrów mają wszystkie wagony?',ans:w*L},{label:'Jaką długość (w m) ma cały pociąg?',ans:w*L+lok}],
+    hint:`Wagony: ${w} · ${L} = ${w*L} m. Z lokomotywą: ${w*L} + ${lok} = <b>${w*L+lok}</b> m (s. 124, zad. 17).`};
+},{book:true});
+word(4,1,()=>{ // s. 124, zad. 18
+  const A=one([45,65,75,85]), k=one([300,500,700]);
+  return {ctx:`W 1995 roku w Polsce używano ${fmtN(A*1000)} telefonów komórkowych. W 2025 roku telefonów komórkowych było ${k} razy więcej. Ile telefonów komórkowych było w Polsce w 2025 roku?`,
+    f:[{label:'Ile telefonów komórkowych było w 2025 roku?',ans:A*1000*k,size:'wide'}],
+    hint:`Pomnóż liczby bez zer: ${A} · ${k/100} = ${A*k/100}, potem dopisz 5 zer (3 z pierwszej i 2 z drugiej liczby): <b>${fmtN(A*1000*k)}</b> (s. 124, zad. 18).`};
+},{book:true});
+word(4,2,()=>{ // s. 124, zad. 19
+  const p2=rnd(10,12), p1=rnd(9,11), v=3;
+  return {ctx:`W jednym wagonie drugiej klasy jest ${p2} ośmioosobowych przedziałów. W wagonie pierwszej klasy jest ${p1} sześcioosobowych przedziałów. Ile miejsc jest w pociągu złożonym z trzech wagonów drugiej klasy i jednego wagonu pierwszej klasy?`,
+    f:[{label:'Ile miejsc jest w jednym wagonie drugiej klasy?',ans:p2*8},{label:'Ile miejsc jest w wagonie pierwszej klasy?',ans:p1*6},{label:'Ile miejsc jest w całym pociągu?',ans:v*p2*8+p1*6}],
+    hint:`Wagon 2. klasy: ${p2} · 8 = ${p2*8}. Wagon 1. klasy: ${p1} · 6 = ${p1*6}. Pociąg: 3 · ${p2*8} + ${p1*6} = ${3*p2*8} + ${p1*6} = <b>${3*p2*8+p1*6}</b> (s. 124, zad. 19).`};
+},{book:true});
+word(4,1,()=>{ // s. 124, zad. 20
+  const p=rnd(75,95), zn=one([100,120,140,160,180]), T=20*p-zn;
+  return {ctx:`Duża piłka lekarska waży 5 kg. Dla pewnej szkoły zakupiono 20 takich piłek. Cena jednej piłki wynosi ${p} zł. Ze względu na duże zamówienie sprzedawca obniżył cenę i w sumie trzeba było zapłacić tylko ${fmtN(T)} zł. O ile złotych więcej trzeba byłoby zapłacić bez zniżki?`,
+    f:[{label:'Ile złotych kosztowałoby 20 piłek bez zniżki?',ans:20*p},{label:'O ile złotych więcej trzeba byłoby zapłacić bez zniżki?',ans:zn}],
+    hint:`Bez zniżki: 20 · ${p} = ${20*p} zł. Różnica: ${20*p} – ${fmtN(T)} = <b>${zn}</b> zł (s. 124, zad. 20).`};
+},{book:true});
+word(4,1,()=>{ // s. 120–121: metoda Fermiego
+  const a=one([100,200,300]), w=one([20,30,40,50]), uc=one([24,25,26]);
+  return {q:'Metoda Fermiego: dziel zadanie na etapy.', ctx:`W jednej warstwie grochu na dnie słoja mieści się ${a} ziaren, a w słoju zmieści się ${w} takich warstw. Plecak ucznia czwartej klasy waży około 4 kg.`,
+    f:[{label:'Ile ziaren grochu zmieści się w słoju?',ans:a*w},{label:`Ile kilogramów ważą plecaki ${uc} uczniów z jednej klasy?`,ans:4*uc}],
+    hint:`${a} · ${w} = <b>${fmtN(a*w)}</b> ziaren. ${uc} · 4 = <b>${4*uc}</b> kg (s. 120–121).`};
+});
+
+/* ---------- 5. Sprytne dzielenie (s. 114–119) ---------- */
+word(5,2,()=>{ // poziom A
+  const items=Array.from({length:4},()=>({q:rnd(2,99)*one([1,10,100,1000]), p:one([10,100,1000])}));
+  return {q:'Wykonaj dzielenie.', f:items.map(({q,p})=>({pre:`${fmtN(q*p)} : ${fmtN(p)} =`,ans:q,size:'wide'})), o:{grid:true},
+    hint:`Aby podzielić liczbę z zerami na końcu przez 10, 100, 1000, pomiń odpowiednią ilość zer od końca: ${items.map(({q,p})=>`${fmtN(q*p)} : ${fmtN(p)} = <b>${fmtN(q)}</b>`).join('; ')} (s. 115).`};
+});
+word(5,2,()=>{ // poziom B
+  const items=Array.from({length:4},()=>({d:rnd(3,9), q:rnd(2,9)*10**rnd(1,3)}));
+  return {q:'Wykonaj dzielenie.', f:items.map(({d,q})=>({pre:`${fmtN(d*q)} : ${d} =`,ans:q,size:'short'})), o:{grid:true},
+    hint:`Podziel liczby bez zer, a potem dopisz zera: ${items.map(({d,q})=>{ const [a,z]=zs(q); return `${fmtN(d*q)} : ${d}: ${d*a} : ${d} = ${a}, dopisz ${z} ${form(z,'zero','zera','zer')} = <b>${fmtN(q)}</b>`; }).join('; ')} (s. 115).`};
+});
+word(5,2,()=>{ // poziom C
+  const items=Array.from({length:4},()=>({e:rnd(2,9), k:rnd(1,3), q:rnd(2,9)*one([1,10,100])})).map(o=>({...o,D:o.e*10**o.k}));
+  return {q:'Wykonaj dzielenie. Możesz skreślić tyle samo zer w obu liczbach.', f:items.map(({D,q})=>({pre:`${fmtN(D*q)} : ${fmtN(D)} =`,ans:q,size:'short'})), o:{grid:true},
+    hint:`Skreśl w obu liczbach tyle samo zer i podziel to, co zostało: ${items.map(({D,q,e,k})=>{ const z=Math.min(k,zs(D*q)[1]); return `${fmtN(D*q)} : ${fmtN(D)} = ${fmtN(D*q/10**z)} : ${fmtN(D/10**z)} = <b>${fmtN(q)}</b>`; }).join('; ')} (s. 116).`};
+});
+word(5,2,()=>{ // poziom D
+  const items=Array.from({length:4},()=>{ const d=rnd(2,9), q=rnd(12,39); return {d,q,n:d*q}; });
+  return {q:'Podziel „po kawałku”.', f:items.map(({d,n})=>({pre:`${n} : ${d} =`,ans:n/d,size:'tiny'})), o:{grid:true},
+    hint:`Rozbij dzielną na dwie liczby podzielne przez dzielnik: ${items.map(({d,q,n})=>`${n} : ${d} = (${d*10*Math.floor(q/10)} + ${d*(q%10)}) : ${d} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b>`).join('; ')} (s. 116).`};
+},{kart:'C'});
+word(5,2,()=>{ // Mistrz
+  const items=Array.from({length:3},()=>{ const d=rnd(3,9), q=rnd(14,49); return {d,q,n:d*q}; });
+  return {q:'Podziel „po kawałku”.', f:items.map(({d,n})=>({pre:`${n} : ${d} =`,ans:n/d,size:'tiny'})),
+    hint:`Szukaj liczb podzielnych przez dzielnik: ${items.map(({d,q,n})=>`${n} : ${d} = (${d*10*Math.floor(q/10)} + ${d*(q%10)}) : ${d} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b>`).join('; ')} (s. 116–117).`};
+},{kart:'C'});
+word(5,2,()=>{ // sumy: 72 : 3 = (60 + 12) : 3
+  const d=rnd(3,9), t=rnd(1,4), u=rnd(1,9), q=10*t+u, A=d*10*t, B=d*u, n=A+B;
+  return {q:'Podziel „po kawałku”.', f:[
+    {pre:`${n} : ${d} = (${A} + ${B}) : ${d} = ${A} : ${d} + ${B} : ${d} =`,post:'+',ans:10*t,size:'tiny'},
+    {cont:true,post:'=',ans:u,size:'tiny'},
+    {cont:true,ans:q,size:'tiny'}],
+    hint:`Zapisz ${n} jako sumę liczb podzielnych przez ${d}: ${n} = ${A} + ${B}. Wtedy ${A} : ${d} = ${10*t}, ${B} : ${d} = ${u}, a razem <b>${q}</b> (s. 116).`};
+},{kart:'C'});
+word(5,2,()=>{ // różnice: 51 : 3 = (60 – 9) : 3
+  const d=rnd(3,9), t=rnd(1,4), s=rnd(1,3), q=10*(t+1)-s, A=d*10*(t+1), B=d*s, n=A-B;
+  return {q:'Podziel „po kawałku”, korzystając z odejmowania.', f:[
+    {pre:`${n} : ${d} = (${A} – ${B}) : ${d} = ${A} : ${d} – ${B} : ${d} =`,post:'–',ans:10*(t+1),size:'tiny'},
+    {cont:true,post:'=',ans:s,size:'tiny'},
+    {cont:true,ans:q,size:'tiny'}],
+    hint:`Zapisz ${n} jako różnicę liczb podzielnych przez ${d}: ${n} = ${A} – ${B}. Wtedy ${A} : ${d} – ${B} : ${d} = ${10*(t+1)} – ${s} = <b>${q}</b> (s. 119, zad. 15).`};
+},{kart:'C'});
+add({lesson:5, kind:'recog', max:1, kart:'C', // s. 116: QUIZ – rozkład dzielnej
+  render(c,a){
+    const d=rnd(3,9), t=rnd(1,4), u=rnd(2,9), q=10*t+u, n=d*q, good=`${n} = ${d*10*t} + ${d*u}`;
+    const bad=new Set(); let guard=0;
+    while(bad.size<3 && guard++<200){ const x=10*rnd(2,Math.floor(n/10)-1)+rnd(1,9); if(x%d!==0 && (n-x)%d!==0 && x<n) bad.add(`${n} = ${x} + ${n-x}`); }
+    while(bad.size<3) bad.add(`${n} = ${n-5-bad.size} + ${5+bad.size}`);
+    this.hint=`Dzielenie ułatwi rozkład na liczby, które <b>obie</b> dzielą się przez ${d}: ${good}. Wtedy ${n} : ${d} = ${10*t} + ${u} = ${q} (s. 116).`;
+    ask(c,`Która z równości pomoże wykonać dzielenie <span class="num">${n} : ${d}</span>?`);
+    renderOptions(c, opts(good,...bad), a, true);
+  }});
+add({lesson:5, kind:'recog', max:1, // s. 116: QUIZ – skreślanie zer
+  render(c,a){
+    const D=rnd(2,9), E=rnd(2,9), n=D*1000, d=E*100;
+    this.hint=`W ${fmtN(n)} : ${fmtN(d)} skreślamy po dwa zera: ${fmtN(n)} : ${fmtN(d)} = <b>${D*10} : ${E}</b>. Mamy ${D}000 : ${E}00, czyli ${D}0 : ${E} (s. 116).`;
+    ask(c,`Które działanie ma taki sam wynik jak <span class="num">${fmtN(n)} : ${fmtN(d)}</span>?`);
+    renderOptions(c, opts(`${D*10} : ${E}`,`${D} : ${E}`,`${D*100} : ${E}`,`${D*10} : ${E*10}`), a);
+  }});
+word(5,2,()=>{ // s. 118, zad. 8: pralka
+  const r1=one([150,200,225,250]), r=one([75,100,125,150]), k=rnd(6,12), P=r1+k*r;
+  return {ctx:`Państwo Nowakowscy kupili pralkę na raty. Pralka kosztuje ${fmtN(P)} zł. Pierwsza rata wynosi ${r1} zł, a pozostałe raty po ${r} zł. Na ile rat została rozłożona spłata tej pralki?`,
+    f:[{label:'Ile złotych zostało do spłaty po pierwszej racie?',ans:P-r1,size:'short'},{label:`Ile rat po ${r} zł trzeba zapłacić?`,ans:k},{label:'Na ile rat została rozłożona spłata pralki?',ans:k+1}],
+    hint:`Po pierwszej racie: ${fmtN(P)} – ${r1} = ${fmtN(P-r1)} zł. Rat po ${r} zł: ${fmtN(P-r1)} : ${r} = ${k}. Razem z pierwszą: ${k} + 1 = <b>${k+1}</b> rat (s. 118, zad. 8).`};
+});
+add({lesson:5, kind:'recog', max:1, // s. 118, zad. 10
+  render(c,a){
+    // „10 razy mniej od x zł” czy „o 100 zł mniej od x zł”? (druga kwota liczona od innej liczby, jak w podręczniku)
+    const x=one([3600,4800,2400,6000,7200]), y=one([360,480,240,600,720,500,900,300]), A=x/10, B=y-100, first=A>B;
+    this.hint=`10 razy mniej od ${fmtN(x)} zł to ${fmtN(x)} : 10 = ${fmtN(A)} zł. O 100 zł mniej od ${fmtN(y)} zł to ${fmtN(y)} – 100 = ${fmtN(B)} zł. ${first?`${fmtN(A)} > ${fmtN(B)}, więc większa jest pierwsza kwota`:A===B?'Kwoty są równe':`${fmtN(A)} < ${fmtN(B)}, więc większa jest druga kwota`} (s. 118, zad. 10).`;
+    ask(c,'Która kwota jest większa?');
+    const o=[{text:`10 razy mniej od ${fmtN(x)} zł`,correct:A>B},{text:`o 100 zł mniej od ${fmtN(y)} zł`,correct:B>A}];
+    if(A===B) o.push({text:'Kwoty są równe',correct:true});
+    renderOptions(c, shuffle(o), a, true);
+  }});
+word(5,1,()=>{ // s. 117, zad. 1–2: razy mniej
+  const k=rnd(3,5), q=rnd(10,15), n=k*q, k2=one([10,20,25]), q2=rnd(3,6)*10, szk=k2*q2;
+  return {q:'Rozwiąż zadania.', f:[
+    {label:`Kamil ma ${n} kart z samochodami, a jego młodszy brat Arek ma ich ${k} razy mniej. Ile kart z samochodami ma Arek?`,ans:q},
+    {label:`W naszej szkole jest ${szk} uczniów, a w naszej klasie jest ich ${k2} razy mniej. Ilu uczniów jest w naszej klasie?`,ans:q2}],
+    hint:`„${k} razy mniej” to dzielenie: ${n} : ${k} = <b>${q}</b>. „${k2} razy mniej”: ${szk} : ${k2} = <b>${q2}</b> – skreśl po jednym zerze: ${szk/10} : ${k2/10} = ${q2} (s. 117).`};
+});
+word(5,1,()=>{ // s. 117, zad. 3–4
+  const g=rnd(3,8), q=rnd(2,6)*100, n=g*q, m=rnd(150,300), c2=2*m;
+  return {q:'Rozwiąż zadania.', f:[
+    {label:`W magazynie jest ${fmtN(n)} butelek wody mineralnej. Butelki są pakowane w zgrzewki po ${g} sztuk. Ile zgrzewek wody jest w magazynie?`,ans:q},
+    {label:`Asia zebrała kwotę ${c2} gr w monetach dwugroszowych. Ile monet zebrała Asia?`,ans:m}],
+    hint:`${fmtN(n)} : ${g} = <b>${q}</b> zgrzewek (${n/100} : ${g} = ${q/100}, dopisz 2 zera). ${c2} : 2 = <b>${m}</b> monet (s. 117, zad. 3–4).`};
+});
+word(5,1,()=>{ // s. 118, zad. 6
+  const m=one([20,30,40,50]), k=one([15,20,25]), X=m*(k-1);
+  return {ctx:`Marysia ma w swoim pokoju ${m} książek. Jej rodzice mają o ${fmtN(X)} książek więcej niż Marysia. Ile razy więcej książek mają rodzice?`,
+    f:[{label:'Ile książek mają rodzice?',ans:m*k,size:'short'},{label:'Ile razy więcej książek mają rodzice niż Marysia?',ans:k}],
+    hint:`Rodzice: ${m} + ${fmtN(X)} = ${fmtN(m*k)} książek. Ile razy więcej: ${fmtN(m*k)} : ${m} = <b>${k}</b> (s. 118, zad. 6).`};
+});
+word(5,1,()=>{ // s. 118, zad. 7
+  const z=one([4,5,8,10]), r=one([20,25,40,50]), J=z*r;
+  return {ctx:`Jeleń waży ${J} kg, a zając jest od niego o ${J-z} kg lżejszy. Ile razy zając jest lżejszy od jelenia?`,
+    f:[{label:'Ile kilogramów waży zając?',ans:z},{label:'Ile razy zając jest lżejszy od jelenia?',ans:r}],
+    hint:`Zając: ${J} – ${J-z} = ${z} kg. Ile razy lżejszy: ${J} : ${z} = <b>${r}</b> (s. 118, zad. 7).`};
+});
+word(5,1,()=>{ // s. 117, zad. 5
+  const s=one([200,300,400]), r=one([15,20,25]), B=s*r;
+  return {ctx:`Żarłacz błękitny waży ${s} kg, a żarłacz biały waży ${fmtN(B)} kg.`,
+    f:[{label:'Ile razy cięższy jest żarłacz biały od żarłacza błękitnego?',ans:r},{label:'O ile kilogramów cięższy jest żarłacz biały?',ans:B-s,size:'short'}],
+    hint:`„Ile razy”: ${fmtN(B)} : ${s} = <b>${r}</b> (skreśl dwa zera: ${B/100} : ${s/100}). „O ile”: ${fmtN(B)} – ${s} = <b>${fmtN(B-s)}</b> (s. 117, zad. 5).`};
+});
+word(5,1,()=>{ // s. 118, zad. 12
+  const hs=sample([2,3,4,5,6,8,10,12,15,20],3).sort((a,b)=>a-b);
+  return {q:'Ile to godzin?', f:hs.map(h=>({pre:`${fmtN(60*h)} minut =`,post:'godzin',ans:h,size:'tiny'})),
+    hint:`Godzina ma 60 minut, więc dzielimy przez 60: ${hs.map(h=>`${fmtN(60*h)} : 60 = ${h}`).join(', ')} (s. 118).`};
+});
+word(5,2,()=>{ // s. 124, zad. 14
+  const m=rnd(5,20), k=one([20,25,30,40,45,50]), h=one([100,150,200,250,300]);
+  return {q:'Godzina ma 60 minut, a minuta ma 60 sekund.', f:[
+    {label:`Ile sekund jest w ${m} minutach?`,ans:60*m},{label:'Ile sekund ma godzina?',ans:3600},
+    {label:`Ile to minut: ${fmtN(60*k)} sekund?`,ans:k},{label:`Ile to godzin: ${fmtN(60*h)} minut?`,ans:h}],
+    hint:`${m} · 60 = ${60*m} s. Godzina: 60 · 60 = 3600 s. ${fmtN(60*k)} : 60 = ${k} min. ${fmtN(60*h)} : 60 = <b>${h}</b> godz. (s. 124, zad. 14).`};
+},{book:true});
+word(5,1,()=>{ // s. 119, Czy już umiem? 2
+  const d=one([20,30,40,50]), q=rnd(10,40)*10, n=d*q;
+  return {ctx:`Adam przebiegł trasę długości ${fmtN(n)} m, a jego brat Piotruś przebiegł ${d} razy krótszą odległość. Ile metrów przebiegł Piotruś?`,
+    f:[{label:'Ile metrów przebiegł Piotruś?',ans:q}],
+    hint:`„${d} razy krótszą” to dzielenie: ${fmtN(n)} : ${d} = ${fmtN(n/10)} : ${d/10} = <b>${q}</b> (s. 119).`};
+},{book:true});
+word(5,1,()=>{ // s. 119, Czy już umiem? 3
+  const n=one([3,4,5,6]), p=rnd(24,48), T=n*p;
+  return {ctx:`Dla ${n} uczniów – zwycięzców szkolnego konkursu na najlepszego rachmistrza – komitet rodzicielski kupił takie same nagrody. Za wszystkie zapłacono ${T} zł. Ile kosztowała jedna nagroda?`,
+    f:[{label:'Ile złotych kosztowała jedna nagroda?',ans:p}],
+    hint:`${T} : ${n} = ${n*Math.floor(p/10)*10} : ${n} + ${n*(p%10)} : ${n} = ${Math.floor(p/10)*10} + ${p%10} = <b>${p}</b> (s. 119).`};
+},{book:true});
+word(5,1,()=>{ // s. 124, zad. 15
+  const n=one([20,25]), q=rnd(15,29)*10+rnd(0,4)*2, T=n*q;
+  return {ctx:`W klasie 4a jest ${n} osób. Za klasową wycieczkę trzeba było zapłacić łącznie ${fmtN(T)} zł. Jaka kwota przypadła na jednego ucznia?`,
+    f:[{label:'Jaka kwota przypadła na jednego ucznia (w zł)?',ans:q}],
+    hint:`${fmtN(T)} : ${n} = <b>${q}</b> zł. Możesz podzielić „po kawałku” albo najpierw przez 10, a potem przez ${n/10} (s. 124, zad. 15).`};
+},{book:true});
+add({lesson:5, kind:'recog', max:1, book:true, kart:'C', // s. 123, zad. 3
+  render(c,a){
+    const k=one([3,4,5]), q=rnd(25,60), n=k*q;
+    this.hint=`„${k===3?'trzy':k===4?'cztery':'pięć'} razy mniejsza” oznacza dzielenie: ${n} : ${k} = (${k*10*Math.floor(q/10)} + ${k*(q%10)}) : ${k} = ${10*Math.floor(q/10)} + ${q%10} = <b>${q}</b> (s. 123, zad. 3).`;
+    ask(c,`Która liczba jest ${k===3?'trzy':k===4?'cztery':'pięć'} razy mniejsza od liczby ${n}?`);
+    renderOptions(c, numOpts(q,[n-k,n+k,n*k,q+k]), a);
+  }});
+add({lesson:5, kind:'recog', max:1, book:true, // s. 123, zad. 4
+  render(c,a){
+    const d=rnd(2,9)*10, q=rnd(2,9)*10**rnd(1,2), n=d*q;
+    this.hint=`${fmtN(n)} : ${d} = ${fmtN(n/10)} : ${d/10} = <b>${fmtN(q)}</b> (skreśl po jednym zerze). Sprawdzenie: ${fmtN(q)} · ${d} = ${fmtN(n)} (s. 123, zad. 4).`;
+    ask(c,`Ile jest równy wynik dzielenia liczby ${fmtN(n)} przez ${d}?`);
+    renderOptions(c, numOpts(q,[q*10,q/10,q*100,q/100]), a);
+  }});
+add({lesson:5, kind:'recog', max:1, book:true, kart:'C', // s. 123, zad. 6
+  render(c,a){
+    const d=rnd(6,9), q=rnd(12,19), n=d*q;
+    this.hint=`Liczbę dni obliczamy dzieleniem: ${n} : ${d} = (${d*10} + ${d*(q-10)}) : ${d} = 10 + ${q-10} = <b>${q}</b> dni (s. 123, zad. 6).`;
+    ask(c,`Ela codziennie rozwiązuje ${d} zadań. Ile dni zajmie Eli rozwiązanie ${n} zadań?`);
+    renderOptions(c, numOpts(q,[n-d,q-2,q+4,q+2,n+d]), a);
+  }});
+add({lesson:5, kind:'recog', max:1, book:true, // s. 123, zad. 7
+  render(c,a){
+    const k=one([2,3,4]), x=rnd(4,8), n=(k+1)*x, girls=k*x;
+    this.hint=`Chłopców jest x, a dziewcząt ${k} razy więcej, czyli ${k}x. Razem ${k+1}x = ${n}, więc x = ${n} : ${k+1} = ${x}. Dziewcząt jest ${k} · ${x} = <b>${girls}</b> (s. 123, zad. 7).`;
+    ask(c,`W ${n}-osobowej klasie jest ${k===2?'dwa':k===3?'trzy':'cztery'} razy więcej dziewcząt niż chłopców. Ile dziewcząt jest w tej klasie?`);
+    renderOptions(c, numOpts(girls,[x,n-k,n/2,n-1,n/k]), a);
+  }});
+word(5,2,()=>{ // s. 124, zad. 13
+  const k=one([3,4]), m=rnd(5,9), n=k*m, d=rnd(2,5);
+  return {q:`Znajdź liczbę.`, f:[
+    {pre:`${k} razy większa niż ${n}:`,ans:k*n,size:'tiny'},{pre:`o ${d} większa od ${n}:`,ans:n+d,size:'tiny'},
+    {pre:`${k} razy mniejsza niż ${n}:`,ans:m,size:'tiny'},{pre:`o ${d} mniejsza od ${n}:`,ans:n-d,size:'tiny'}],
+    hint:`„${k} razy większa” – mnożymy: ${k} · ${n} = ${k*n}. „O ${d} większa” – dodajemy: ${n} + ${d} = ${n+d}. „${k} razy mniejsza” – dzielimy: ${n} : ${k} = ${m}. „O ${d} mniejsza” – odejmujemy: ${n} – ${d} = ${n-d} (s. 124, zad. 13).`};
+},{book:true});
+word(5,4,()=>{ // s. 124, zad. 11 i 12
+  const x1=[rnd(2,9)*100,rnd(2,9)*10], x2=[rnd(2,9)*1000,rnd(2,9)*100];
+  const d1=one([[60000,2000],[24000,300],[56000,800]]), d2=one([[4*10**5,80],[48000,60],[2500,500]]);
+  const f=[{pre:`${fmtN(x1[0])} · ${fmtN(x1[1])} =`,ans:x1[0]*x1[1],size:'wide'},{pre:`${fmtN(x2[0])} · ${fmtN(x2[1])} =`,ans:x2[0]*x2[1],size:'wide'},
+    {pre:`${fmtN(d1[0])} : ${fmtN(d1[1])} =`,ans:d1[0]/d1[1],size:'wide'},{pre:`${fmtN(d2[0])} : ${fmtN(d2[1])} =`,ans:d2[0]/d2[1],size:'wide'}];
+  return {q:'Oblicz.', f, o:{grid:true},
+    hint:`Mnożenie: pomnóż liczby bez zer i dopisz zera. Dzielenie: skreśl tyle samo zer w obu liczbach. ${f.map((x,i)=>x.pre.replace(' =','')+' = <b>'+fmtN(x.ans)+'</b>').join('; ')} (s. 124, zad. 11).`};
+},{book:true});
+word(5,2,()=>{ // s. 123, zad. 9 i s. 124, zad. 12: mieszane
+  const a=rnd(12,19), b=rnd(3,5), c2=rnd(31,69), d=rnd(3,4)*10, e=rnd(2,9), q=rnd(12,29), h=rnd(2,5);
+  return {q:'Oblicz.', f:[{pre:`${a} · ${b} =`,ans:a*b,size:'tiny'},{pre:`${c2} · ${d} =`,ans:c2*d,size:'tiny'},{pre:`${e*q} : ${e} =`,ans:q,size:'tiny'},{pre:`${h*(2*q)} : ${h} =`,ans:2*q,size:'tiny'}], o:{grid:true},
+    hint:`${a} · ${b} = ${10*b} + ${(a-10)*b} = ${a*b}. ${c2} · ${d}: ${c2} · ${d/10} = ${c2*d/10}, dopisz zero = ${c2*d}. ${e*q} : ${e} = ${q}, bo ${q} · ${e} = ${e*q}. ${h*2*q} : ${h} = ${2*q} (s. 124, zad. 12).`};
+},{book:true});
+
+/* =========================================================
+   STEROWANIE
+   ========================================================= */
+const KIND_LABEL = { recog:{t:'Wybieranie odpowiedzi', i:ICON.eye}, recall:{t:'Wpisywanie wyników', i:ICON.pen} };
+const PRAISE=['Świetnie!','Brawo!','Dokładnie tak!','Super!','Tak jest!','Jak prawdziwy matematyk!'];
+const KART_N={A:5,B:4,C:4}, KART_MIN=15, FULL_MIN=45;
+const FULL_QUOTA={1:5,2:6,3:6,4:7,5:7};
+const PRACTICE_MAX=12;
+
+const state={ list:[], index:0, score:0, mode:'test', perGroup:{}, perKind:{recog:{ok:0,total:0},recall:{ok:0,total:0}}, review:[], answered:false, lastConfig:null, minutes:0 };
+
+const groupKey = q => state.mode==='kart' ? q.kart : q.lesson;
+const groupInfo = (q,mode=state.mode) => mode==='kart' ? KARTS[q.kart] : LESSONS[q.lesson];
+const groupLabel = (key,mode=state.mode) => mode==='kart' ? `${key}. ${KARTS[key].name}` : `${key}. ${LESSONS[key].name}`;
+
+function buildKart(){ const out=[]; for(const k of ['A','B','C']) out.push(...sample(Q.filter(q=>q.kart===k),KART_N[k])); return out; }
+function buildFull(){
+  const out=[];
+  for(let l=1;l<LESSONS.length;l++){
+    const all=Q.filter(q=>q.lesson===l), n=FULL_QUOTA[l];
+    const book=shuffle(all.filter(q=>q.book)), rest=shuffle(all.filter(q=>!q.book));
+    const nb=Math.min(book.length,Math.ceil(n/2));
+    out.push(...shuffle([...book.slice(0,nb),...rest.slice(0,n-nb)]));
+  }
+  return out;
+}
+function buildList(lessons){
+  const out=[];
+  for(let l=1;l<LESSONS.length;l++) if(lessons.has(l)) out.push(...sample(Q.filter(q=>q.lesson===l),PRACTICE_MAX));
+  return out;
+}
+const sumMax = list => list.reduce((s,q)=>s+q.max,0);
+const plural = n => n===1?'zadanie':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?'zadania':'zadań';
+
+// zakładki
+let tab='kart';
+try{ const t=localStorage.getItem('matma3-tab'); if(['kart','test','topic'].includes(t)) tab=t; }catch(e){}
+const tabBtns=[...document.querySelectorAll('[role=tab]')], TABS=['kart','test','topic'];
+function setTab(t, focus){
+  tab=t;
+  try{ localStorage.setItem('matma3-tab',t); }catch(e){}
+  tabBtns.forEach(b=>{ const on=b.dataset.tab===t; b.setAttribute('aria-selected',on); b.tabIndex=on?0:-1; if(on&&focus) b.focus(); });
+  TABS.forEach(x=>$('panel-'+x).hidden = x!==t);
+}
+tabBtns.forEach(b=>{
+  b.onclick=()=>setTab(b.dataset.tab);
+  b.onkeydown=e=>{ const i=TABS.indexOf(tab); if(e.key==='ArrowRight') setTab(TABS[(i+1)%3],true); if(e.key==='ArrowLeft') setTab(TABS[(i+2)%3],true); };
+});
+setTab(tab);
+
+const kartSample=buildKart(), fullSample=buildFull();
+$('kart-facts').innerHTML=[
+  [ICON.list,`<span><b>${kartSample.length} zadań</b> z trzech tematów</span>`],
+  [ICON.book,'<span>tabliczka mnożenia do 100 · mnożenie „po kawałku” · dzielenie „po kawałku”</span>'],
+  [ICON.clock,`<span>masz <b>${KART_MIN} minut</b></span>`]
+].map(([i,t])=>`<li>${i}${t}</li>`).join('');
+$('kart-btn').innerHTML=`${ICON.play}Rozpocznij kartkówkę`;
+$('test-facts').innerHTML=[
+  [ICON.list,`<span><b>${fullSample.length} zadań</b> z całego działu (${LESSONS.length-1} lekcji)</span>`],
+  [ICON.book,'<span>zadania tekstowe, tabliczka mnożenia i dzielenia, sprytne mnożenie i dzielenie, „Zadania powtórzeniowe”</span>'],
+  [ICON.clock,`<span>masz <b>${FULL_MIN} minut</b></span>`]
+].map(([i,t])=>`<li>${i}${t}</li>`).join('');
+$('full-btn').innerHTML=`${ICON.play}Rozpocznij sprawdzian`;
+
+// wybór tematów do ćwiczenia
+const pickEl=$('lesson-pick');
+for(let l=1;l<LESSONS.length;l++){
+  const n=Q.filter(q=>q.lesson===l).length;
+  pickEl.insertAdjacentHTML('beforeend',`<label class="lesson"><input type="checkbox" value="${l}"><span class="nr">${l}.</span><span>${LESSONS[l].name} <span class="small">· ${LESSONS[l].pages}</span></span><span class="cnt">${Math.min(n,PRACTICE_MAX)} zad.</span></label>`);
+}
+const boxes=()=>[...pickEl.querySelectorAll('input')];
+const chosenLessons=()=>new Set(boxes().filter(b=>b.checked).map(b=>+b.value));
+function refreshStart(){
+  const n=buildList(chosenLessons()).length;
+  $('start-btn').disabled = n===0;
+  $('start-btn').innerHTML = n ? `${ICON.play}Ćwicz · ${n} ${plural(n)}` : 'Zaznacz temat';
+}
+pickEl.addEventListener('change',refreshStart);
+$('pick-all').onclick=()=>{ boxes().forEach(b=>b.checked=true); refreshStart(); };
+$('pick-none').onclick=()=>{ boxes().forEach(b=>b.checked=false); refreshStart(); };
+refreshStart();
+
+// przebieg
+let timerId=null, deadline=0;
+function stopTimer(){ clearInterval(timerId); timerId=null; $('timer').hidden=true; $('timer').classList.remove('low'); }
+function tick(){
+  const left=Math.max(0,Math.round((deadline-Date.now())/1000));
+  const t=$('timer'); t.innerHTML=`${ICON.clock}${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;
+  t.classList.toggle('low', left<=Math.min(300,state.minutes*60*0.15));
+  if(left<=0){ stopTimer(); showResults(true); }
+}
+function begin(list, mode, minutes){
+  state.list=list; state.index=0; state.score=0; state.review=[]; state.mode=mode; state.minutes=minutes||0;
+  state.perGroup={}; state.perKind={recog:{ok:0,total:0},recall:{ok:0,total:0}};
+  list.forEach(q=>{ const g=(state.perGroup[groupKey(q)]=state.perGroup[groupKey(q)]||{ok:0,total:0}); g.total+=q.max; state.perKind[q.kind].total+=q.max; });
+  $('start-screen').hidden=true; $('result-screen').hidden=true; $('quiz-screen').hidden=false;
+  stopTimer();
+  if(minutes){ deadline=Date.now()+minutes*60000; $('timer').hidden=false; tick(); timerId=setInterval(tick,1000); }
+  showQuestion();
+}
+function showQuestion(){
+  const q=state.list[state.index], total=state.list.length;
+  state.answered=false;
+  $('progress-fill').style.width=(state.index/total*100)+'%';
+  $('progress-text').textContent=`Zadanie ${state.index+1} z ${total}`;
+  $('score-text').textContent=fmt(state.score);
+  const gi=groupInfo(q), ptsTxt=`${q.max} ${q.max===1?'punkt':q.max<5?'punkty':'punktów'}`;
+  $('q-meta').innerHTML=`<span class="badge">${groupLabel(groupKey(q))}</span><span class="badge">${ptsTxt}</span>${q.book&&state.mode!=='kart'?`<span class="badge solid">${ICON.book}Jak w podręczniku</span>`:''}`;
+  $('feedback').innerHTML='';
+  $('next-btn').hidden=true;
+  const area=$('question-area'); area.innerHTML='';
+  q.render(area,(frac)=>handleAnswer(frac,q));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function handleAnswer(frac,q){
+  if(state.answered) return;
+  state.answered=true;
+  const pts=Math.floor(Math.max(0,Math.min(1,frac))*q.max*2+1e-9)/2;
+  state.score+=pts; state.perGroup[groupKey(q)].ok+=pts; state.perKind[q.kind].ok+=pts;
+  $('score-text').textContent=fmt(state.score);
+  const title=$('question-area').querySelector('.q-instruction')?.textContent||'';
+  const ctxt=$('question-area').querySelector('.q-context')?.textContent||'';
+  if(pts<q.max) state.review.push({q, title:(ctxt?ctxt.slice(0,90)+(ctxt.length>90?'…':''):title)||title, pts});
+  let html;
+  if(pts===q.max) html=`<div class="alert ok">${ICON.check}<div class="alert-title">${PRAISE[Math.floor(Math.random()*PRAISE.length)]}</div></div>`;
+  else html=`<div class="alert ${pts?'half':'bad'}">${pts?ICON.half:ICON.x}<div class="alert-title">${pts?`${fmt(pts)} z ${q.max} pkt`:'Niepoprawnie'}</div><div class="alert-body">${q.hint}</div></div>`;
+  $('feedback').innerHTML=html;
+  const last=state.index>=state.list.length-1;
+  $('next-btn').innerHTML = last ? `Zobacz wynik${ICON.arrow}` : `Dalej${ICON.arrow}`;
+  $('next-btn').hidden=false;
+  $('next-btn').focus({preventScroll:true});
+}
+function goNext(){ state.index++; if(state.index>=state.list.length) showResults(false); else showQuestion(); }
+
+// Skala ocen: do 29% – 1, 30–49% – 2, 50–74% – 3, 75–84% – 4, 85–97% – 5, powyżej 97% – 6
+function schoolGrade(pct){
+  if(pct<30) return {n:1,name:'niedostateczny'};
+  if(pct<50) return {n:2,name:'dopuszczający'};
+  if(pct<75) return {n:3,name:'dostateczny'};
+  if(pct<85) return {n:4,name:'dobry'};
+  if(pct<=97) return {n:5,name:'bardzo dobry'};
+  return {n:6,name:'celujący'};
+}
+function showResults(timeUp){
+  stopTimer();
+  $('quiz-screen').hidden=true; $('result-screen').hidden=false;
+  const start = state.answered ? state.index+1 : state.index;
+  for(let i=start;i<state.list.length;i++) state.review.push({q:state.list[i], title:'(bez odpowiedzi)', pts:0, skipped:true});
+  const total=sumMax(state.list), s=state.score, pct=total?s/total*100:0, g=schoolGrade(pct);
+  const label = state.mode==='kart' ? 'Kartkówka' : state.mode==='test' ? 'Sprawdzian' : 'Ćwiczenie';
+  $('result-kicker').textContent = timeUp ? `Koniec czasu! ${label}: twój wynik` : `${label}: twój wynik`;
+  $('result-score').innerHTML=`${fmt(s)}<span> / ${total} pkt · ${Math.round(pct)}%</span>`;
+  $('result-grade').textContent=`Ocena: ${g.n} (${g.name})`;
+  const pages = state.mode==='kart' ? 's. 98–102, 110–111 i 116–117' : 's. 122–124 („Podsumowanie” i „Zadania powtórzeniowe”)';
+  $('result-desc').textContent = pct===100 ? 'Perfekcyjnie! Wszystko się zgadza.'
+    : pct>=75 ? 'Świetna robota! Powtórz tylko zadania z listy poniżej.'
+    : pct>=50 ? 'Dobrze! Jeszcze trochę powtórki, a będzie super.'
+    : `Przeczytaj jeszcze raz ${pages} i spróbuj ponownie.`;
+  $('tiles').innerHTML = ['recog','recall'].map(k=>{
+    const v=state.perKind[k]; if(!v.total) return '';
+    return `<div class="tile"><div class="tile-head">${KIND_LABEL[k].i}${KIND_LABEL[k].t}</div><div class="tile-val">${fmt(v.ok)} <small>/ ${v.total} pkt</small></div><div class="meter"><div style="width:${v.ok/v.total*100}%"></div></div></div>`;
+  }).join('');
+  const keys=Object.keys(state.perGroup).sort((a,b)=>a>b?1:-1);
+  $('breakdown').innerHTML = keys.map(k=>{
+    const {ok,total:t}=state.perGroup[k];
+    return `<div class="bd-row"><span>${groupLabel(k)}</span><span class="bd-score">${fmt(ok)} / ${t}</span><div class="meter"><div style="width:${ok/t*100}%"></div></div></div>`;
+  }).join('');
+  $('review-wrap').hidden = state.review.length===0;
+  $('review').innerHTML = state.review.map(r=>{
+    const gi=groupInfo(r.q), key=groupKey(r.q);
+    return `<details><summary>${esc(r.title||'Zadanie')} <span class="small">· ${r.skipped?'pominięte':r.pts?fmt(r.pts)+' z '+r.q.max+' pkt':'0 pkt'}</span></summary>
+    <div class="rv-body"><span class="small">${groupLabel(key)} · ${gi.pages}</span><br>${r.q.hint||'Rozwiąż to zadanie jeszcze raz.'}</div></details>`;
+  }).join('');
+  $('retry-wrong-btn').hidden = state.review.length===0;
+  $('retry-wrong-btn').innerHTML=`${ICON.reset}Powtórz błędne (${state.review.length})`;
+  $('again-btn').innerHTML = state.mode==='kart' ? `${ICON.clock}Nowa kartkówka` : state.mode==='test' ? `${ICON.clock}Nowy sprawdzian` : `${ICON.play}Nowe losowanie`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+const startKart=()=>{ state.lastConfig='kart'; begin(buildKart(),'kart',KART_MIN); };
+const startFull=()=>{ state.lastConfig='test'; begin(buildFull(),'test',FULL_MIN); };
+const startTopic=()=>{ state.lastConfig='topic'; begin(buildList(chosenLessons()),'topic',0); };
+$('kart-btn').onclick=startKart;
+$('full-btn').onclick=startFull;
+$('start-btn').onclick=startTopic;
+$('next-btn').onclick=goNext;
+$('quit-btn').onclick=()=>{ if(confirm('Zakończyć i zobaczyć wynik?')) showResults(false); };
+$('retry-wrong-btn').onclick=()=>begin(shuffle(state.review.map(r=>r.q)),state.mode,0);
+$('again-btn').onclick=()=>{ state.lastConfig==='kart' ? startKart() : state.lastConfig==='test' ? startFull() : startTopic(); };
+$('settings-btn').onclick=()=>{ $('result-screen').hidden=true; $('start-screen').hidden=false; refreshStart(); };
+</script>
+</body>
+</html>
