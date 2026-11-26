@@ -759,7 +759,7 @@ word(1,3,()=>{ // s. 92–93: Bajka o Czerwonym Kapturku
        {label:'Ile ciasteczek dostała Babcia?',ans:30},
        {label:'O ile minut więcej niż zwykle zajęła Kapturkowi droga do Babci?',ans:30}],
     hint:`Do Babci: 40 : 2 = 20 powidłowych + (30 – 5) = 25 kakaowych, razem <b>45</b>. W domu: 20 + 5 = <b>25</b>. Zjedzone: 2 (Kapturek) + 8 (wilk) = <b>10</b> – te 5, które wypadły, nie były zjedzone. Babcia: 45 – 10 – 5 = <b>30</b>. Droga: 15 + 10 + 25 + 20 + 20 = 90 minut, a zwykle 60, czyli o <b>30</b> minut więcej (s. 92–93).`};
-},{book:true});
+},{book:true, noTest:true}); // tylko w „Ćwicz temat”, nie w sprawdzianie
 word(2,1,()=>{ // s. 100: Krysia i trzy skarbonki
   const z=rnd(4,7), n=rnd(2,4), m=rnd(2,4);
   return {ctx:`Krysia ma trzy skarbonki. W zielonej ma ${z} zł, w niebieskiej ma ${n} razy więcej niż w zielonej, a w czerwonej ma o ${m} zł więcej niż w zielonej. Ile w sumie pieniędzy ma Krysia w trzech skarbonkach?`,
@@ -1386,8 +1386,10 @@ word(5,2,()=>{ // s. 123, zad. 9 i s. 124, zad. 12: mieszane
    ========================================================= */
 const KIND_LABEL = { recog:{t:'Wybieranie odpowiedzi', i:ICON.eye}, recall:{t:'Wpisywanie wyników', i:ICON.pen} };
 const PRAISE=['Świetnie!','Brawo!','Dokładnie tak!','Super!','Tak jest!','Jak prawdziwy matematyk!'];
-const KART_N={A:5,B:4,C:4}, KART_MIN=15, FULL_MIN=45;
-const FULL_QUOTA={1:5,2:6,3:6,4:7,5:7};
+const KART_N={A:5,B:4,C:4}, KART_MIN=15, FULL_MIN=30;
+// Sprawdzian dobierany na czas, nie na liczbę zadań: zadania z łącznym szacowanym czasem pracy
+// do FULL_WORK minut (reszta to zapas na wskazówki, klikanie i sprawdzanie). Zadania z noTest nie trafiają do sprawdzianu.
+const FULL_WORK=FULL_MIN*0.85, FULL_TASK_MAX=3.5;
 const PRACTICE_MAX=12;
 
 const state={ list:[], index:0, score:0, mode:'test', perGroup:{}, perKind:{recog:{ok:0,total:0},recall:{ok:0,total:0}}, review:[], answered:false, lastConfig:null, minutes:0 };
@@ -1397,14 +1399,52 @@ const groupInfo = (q,mode=state.mode) => mode==='kart' ? KARTS[q.kart] : LESSONS
 const groupLabel = (key,mode=state.mode) => mode==='kart' ? `${key}. ${KARTS[key].name}` : `${key}. ${LESSONS[key].name}`;
 
 function buildKart(){ const out=[]; for(const k of ['A','B','C']) out.push(...sample(Q.filter(q=>q.kart===k),KART_N[k])); return out; }
-function buildFull(){
-  const out=[];
-  for(let l=1;l<LESSONS.length;l++){
-    const all=Q.filter(q=>q.lesson===l), n=FULL_QUOTA[l];
-    const book=shuffle(all.filter(q=>q.book)), rest=shuffle(all.filter(q=>!q.book));
-    const nb=Math.min(book.length,Math.ceil(n/2));
-    out.push(...shuffle([...book.slice(0,nb),...rest.slice(0,n-nb)]));
+// Szacowany czas (w sekundach) pracy dziesięciolatka nad zadaniem: czytanie (ok. 6 znaków na sekundę)
+// + każde pytanie z treścią ok. 1 min, każde działanie do wpisania ok. 30 s, wybór odpowiedzi ok. 45 s.
+// Liczone z próbnego wygenerowania zadania (średnia z 3 losowań), raz na zadanie.
+function estSec(q){
+  if(q.sec) return q.sec;
+  const hint=q.hint; let sum=0;
+  for(let k=0;k<3;k++){
+    const c=document.createElement('div'); q.render(c,()=>{});
+    let chars=c.textContent.length, t=15;
+    c.querySelectorAll('select').forEach(s=>chars-=s.textContent.length);
+    c.querySelectorAll('.nrow').forEach(r=>{
+      const ctrls=[...r.querySelectorAll('input,select')];
+      ctrls.forEach((el,i)=>{ t += el.tagName==='SELECT' ? 15 : (i===0&&r.querySelector('.nlabel')) ? 60 : el.classList.contains('pair') ? 40 : 30; });
+    });
+    t += c.querySelectorAll('.sort-row').length*15;
+    if(c.querySelector('.options')) t+=45;
+    sum += t + chars/6;
   }
+  q.hint=hint;
+  return q.sec=sum/3;
+}
+function buildFull(){
+  let left=FULL_WORK*60;
+  const per={}, queue={};
+  for(let l=1;l<LESSONS.length;l++){
+    const pool=Q.filter(q=>q.lesson===l&&!q.noTest);
+    queue[l]={book:shuffle(pool.filter(q=>q.book)), rest:shuffle(pool.filter(q=>!q.book))};
+    per[l]=[];
+  }
+  // w kolejnych rundach z każdej lekcji po jednym zadaniu (na zmianę „jak w podręczniku” i pozostałe),
+  // dopóki mieści się w czasie; bez długich zadań (ponad FULL_TASK_MAX min), żeby było ich więcej i różnych
+  let added=true;
+  while(added){
+    added=false;
+    for(let l=1;l<LESSONS.length;l++){
+      const qs=queue[l], nb=per[l].filter(q=>q.book).length;
+      const order = nb<=per[l].length-nb ? [qs.book,qs.rest] : [qs.rest,qs.book];
+      for(const src of order){
+        const i=src.findIndex(q=>estSec(q)<=Math.min(left,FULL_TASK_MAX*60));
+        if(i<0) continue;
+        const [q]=src.splice(i,1); left-=estSec(q); per[l].push(q); added=true; break;
+      }
+    }
+  }
+  const out=[];
+  for(let l=1;l<LESSONS.length;l++) out.push(...shuffle(per[l]));
   return out;
 }
 function buildList(lessons){
@@ -1431,7 +1471,8 @@ tabBtns.forEach(b=>{
 });
 setTab(tab);
 
-const kartSample=buildKart(), fullSample=buildFull();
+const kartSample=buildKart();
+let fullSample=buildFull(); // ten sam zestaw, którego liczbę zadań widać na starcie
 $('kart-facts').innerHTML=[
   [ICON.list,`<span><b>${kartSample.length} zadań</b> z trzech tematów</span>`],
   [ICON.book,'<span>tabliczka mnożenia do 100 · mnożenie „po kawałku” · dzielenie „po kawałku”</span>'],
@@ -1439,7 +1480,7 @@ $('kart-facts').innerHTML=[
 ].map(([i,t])=>`<li>${i}${t}</li>`).join('');
 $('kart-btn').innerHTML=`${ICON.play}Rozpocznij kartkówkę`;
 $('test-facts').innerHTML=[
-  [ICON.list,`<span><b>${fullSample.length} zadań</b> z całego działu (${LESSONS.length-1} lekcji)</span>`],
+  [ICON.list,`<span><b>${fullSample.length} ${plural(fullSample.length)}</b> z całego działu (${LESSONS.length-1} lekcji)</span>`],
   [ICON.book,'<span>zadania tekstowe, tabliczka mnożenia i dzielenia, sprytne mnożenie i dzielenie, „Zadania powtórzeniowe”</span>'],
   [ICON.clock,`<span>masz <b>${FULL_MIN} minut</b></span>`]
 ].map(([i,t])=>`<li>${i}${t}</li>`).join('');
@@ -1561,7 +1602,7 @@ function showResults(timeUp){
 }
 
 const startKart=()=>{ state.lastConfig='kart'; begin(buildKart(),'kart',KART_MIN); };
-const startFull=()=>{ state.lastConfig='test'; begin(buildFull(),'test',FULL_MIN); };
+const startFull=()=>{ state.lastConfig='test'; const list=fullSample||buildFull(); fullSample=null; begin(list,'test',FULL_MIN); };
 const startTopic=()=>{ state.lastConfig='topic'; begin(buildList(chosenLessons()),'topic',0); };
 $('kart-btn').onclick=startKart;
 $('full-btn').onclick=startFull;
